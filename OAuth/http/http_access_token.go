@@ -14,7 +14,6 @@ import (
 type AccessTokenHandler interface {
 	GetByID(c *gin.Context)
 	Create(c *gin.Context)
-	UpdateExperationTime(c *gin.Context)
 }
 
 type accessTokenhandler struct {
@@ -52,9 +51,5 @@ func (h *accessTokenhandler) Create(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, token)
-
-}
-
-func (h *accessTokenhandler) UpdateExperationTime(c *gin.Context) {
 
 }

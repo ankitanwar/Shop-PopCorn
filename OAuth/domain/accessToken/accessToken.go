@@ -2,10 +2,11 @@ package accesstoken
 
 import (
 	"fmt"
-	"fromScratch/utils/errors"
 	"strings"
 	"time"
-	"fromScratch/utils/cryptoUtils"
+
+	"github.com/ankitanwar/GoAPIUtils/errors"
+	cryptos "github.com/ankitanwar/userLoginWithOAuth/Oauth/utils/cryptoUtils"
 )
 
 const (

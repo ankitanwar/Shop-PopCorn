@@ -2,10 +2,10 @@ package db
 
 import (
 	"encoding/json"
-	"fromScratch/utils/errors"
 	"time"
 
-	"github.com/ankitanwar/Oauth/domain/users"
+	"github.com/ankitanwar/GoAPIUtils/errors"
+	"github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/users"
 	"github.com/mercadolibre/golang-restclient/rest"
 )
 

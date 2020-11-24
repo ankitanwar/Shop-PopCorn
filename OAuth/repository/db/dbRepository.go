@@ -3,6 +3,7 @@ package db
 import (
 	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
 	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
 )
@@ -28,7 +29,7 @@ func (d *dbRepository) GetByID(ID string) (*accesstoken.AccessToken, *errors.Res
 	ctx, cancel := mongod.GetSession()
 	defer cancel()
 	result := &accesstoken.AccessToken{}
-	err := collections.FindOne(ctx, accesstoken.AccessToken{AccessToken: ID}).Decode(&result)
+	err := collections.FindOne(ctx, bson.M{"access_token": ID}).Decode(result)
 	if err != nil {
 		return nil, errors.NewNotFound("Given ID doesnt found in the database")
 	}

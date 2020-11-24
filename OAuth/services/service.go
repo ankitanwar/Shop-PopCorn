@@ -1,10 +1,9 @@
 package services
 
 import (
-	"fromScratch/repository/db"
-	"fromScratch/utils/errors"
-
-	accesstoken "fromScratch/domain/accessToken"
+	"github.com/ankitanwar/GoAPIUtils/errors"
+	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
+	"github.com/ankitanwar/userLoginWithOAuth/Oauth/repository/db"
 )
 
 //Service : Interface for services
