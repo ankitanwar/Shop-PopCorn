@@ -1,14 +1,13 @@
 package db
 
 import (
-	"fromScratch/utils/errors"
+	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
+	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
 
-	mongodb "github.com/ankitanwar/OAuth/clients"
-
-	accesstoken "fromScratch/domain/accessToken"
+	"github.com/ankitanwar/GoAPIUtils/errors"
 )
 
-var collections = mongodb.Client.Database("learning").Collection("people")
+var collections = mongod.Client.Database("Users").Collection("user")
 
 //Repository : Database Interface
 type Repository interface {
@@ -26,7 +25,7 @@ func NewRepository() Repository {
 }
 
 func (d *dbRepository) GetByID(ID string) (*accesstoken.AccessToken, *errors.RestError) {
-	ctx, cancel := mongodb.GetSession()
+	ctx, cancel := mongod.GetSession()
 	defer cancel()
 	result := &accesstoken.AccessToken{}
 	err := collections.FindOne(ctx, accesstoken.AccessToken{AccessToken: ID}).Decode(&result)
@@ -37,7 +36,7 @@ func (d *dbRepository) GetByID(ID string) (*accesstoken.AccessToken, *errors.Res
 }
 
 func (d *dbRepository) Create(at *accesstoken.AccessToken) (*accesstoken.AccessToken, *errors.RestError) {
-	session, close := mongodb.GetSession()
+	session, close := mongod.GetSession()
 	defer close()
 	_, err := collections.InsertOne(session, at)
 	if err != nil {

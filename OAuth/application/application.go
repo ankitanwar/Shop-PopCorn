@@ -1,7 +1,7 @@
 package application
 
 import (
-	"fromScratch/services"
+	"github.com/ankitanwar/userLoginWithOAuth/Oauth/services"
 
 	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
 	"github.com/ankitanwar/userLoginWithOAuth/Oauth/http"
