@@ -2,11 +2,10 @@ package accesstoken
 
 import (
 	"fmt"
+	"fromScratch/utils/errors"
 	"strings"
 	"time"
-
-	cryptos "github.com/ankitanwar/Oauth/utils/cryptos"
-	"github.com/ankitanwar/OAuth/utils/errors"
+	"fromScratch/utils/cryptoUtils"
 )
 
 const (
@@ -24,15 +23,14 @@ type AccessToken struct {
 //TokenRequest : To request the new Acess Token
 type TokenRequest struct {
 	Email    string `json:"email"`
-	Password  string `json:"password"`
-
+	Password string `json:"password"`
 }
 
 //Validate : To validate the Access Token
 func (at *AccessToken) Validate() *errors.RestError {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
-if len(at.AccessToken) == 0 {
-		return errors.NewInternalServerError("Ivalid Access Token")
+	if len(at.AccessToken) == 0 {
+		return errors.NewInternalServerError("Invalid Access Token")
 	}
 	if at.UserID <= 0 {
 		return errors.NewBadRequest("Invalid User ID")
@@ -46,11 +44,11 @@ if len(at.AccessToken) == 0 {
 	return nil
 }
 
-//GetNewAccessToken : To get the new access token
+//GetNewAccessToken : To get the new access tok en
 func GetNewAccessToken(id int) *AccessToken {
 	return &AccessToken{
-	UserID:  id,
-	Expires: time.Now().UTC().Add(experationTime *time.Hour).Unix(),
+		UserID:  id,
+		Expires: time.Now().UTC().Add(experationTime * time.Hour).Unix(),
 	}
 
 }
@@ -60,7 +58,7 @@ func (at *AccessToken) IsExpired() bool {
 	return time.Unix(at.Expires, 0).Before(time.Now().UTC())
 }
 
-//Generate : To Generate the new access tken with md5
+//Generate : To Generate the new access token with md5
 func (at *AccessToken) Generate() {
 	at.AccessToken = cryptos.GetMd5(fmt.Sprintf("at-%d-%d-ran", at.UserID, at.Expires))
 }

@@ -1,9 +1,10 @@
 package services
 
 import (
-	accesstoken "github.com/ankitanwar/OAuth/domain/accessToken"
-	"github.com/ankitanwar/OAuth/repository/db"
-	"github.com/ankitanwar/OAuth/utils/errors"
+	"fromScratch/repository/db"
+	"fromScratch/utils/errors"
+
+	accesstoken "fromScratch/domain/accessToken"
 )
 
 //Service : Interface for services
@@ -27,27 +28,28 @@ func NewService(repo db.Repository, usersRepo db.UsersRepository) Service {
 }
 
 func (s *service) Create(request *accesstoken.TokenRequest) (*accesstoken.AccessToken, *errors.RestError) {
-	user, err := s.restUsersRepo.Login(request.Email,request.Password)
+	user, err := s.restUsersRepo.Login(request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
 	token := accesstoken.GetNewAccessToken(user.ID)
 	token.Generate()
-	_,err   = s.repository.Create(*token)
-	if err != nil {
+	res, creatErr := s.repository.Create(token)
+	if creatErr != nil {
 		return nil, err
 	}
-	return token, nil
+	return res, nil
 }
 
-//GetById : To get the user by the given id
+//GetById : To get the user buy the given id
 func (s *service) GetByID(id string) (*accesstoken.AccessToken, *errors.RestError) {
+	//id = strings.TrimSpace(id)
 	if len(id) == 0 {
 		return nil, errors.NewBadRequest("Invalid access token id")
 	}
 	token, err := s.repository.GetByID(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewBadRequest("internal server error")
 	}
 	return token, nil
 
@@ -55,7 +57,7 @@ func (s *service) GetByID(id string) (*accesstoken.AccessToken, *errors.RestErro
 
 func (s *service) UpdateExperationTime(at accesstoken.AccessToken) *errors.RestError {
 	if err := at.Validate(); err != nil {
-		return err
+		return errors.NewBadRequest("internal server error")
 	}
-	return s.repository.UpdateExperationTime(at)
+	return errors.NewBadRequest("internal server error")
 }

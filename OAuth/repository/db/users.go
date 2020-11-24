@@ -2,17 +2,17 @@ package db
 
 import (
 	"encoding/json"
+	"fromScratch/utils/errors"
 	"time"
 
-	"github.com/ankitanwar/OAuth/utils/errors"
 	"github.com/ankitanwar/Oauth/domain/users"
 	"github.com/mercadolibre/golang-restclient/rest"
 )
 
 var (
 	restClinet = rest.RequestBuilder{
-		BaseURL: "https://localhost:8081",
-		Timeout: 200 * time.Millisecond,
+		BaseURL: "http://localhost:8081",
+		Timeout: 100 * time.Millisecond,
 	}
 )
 
@@ -35,7 +35,7 @@ func (u *userRepository) Login(email, password string) (*users.User, *errors.Res
 	}
 	response := restClinet.Post("/user/login", request)
 	if response.Response == nil || response == nil {
-		return nil, errors.NewNotFound("Invalid Rest Clinet Response when trying to login user")
+		return nil, errors.NewNotFound("Invalid Rest Clinet Response")
 	}
 	if response.StatusCode > 299 {
 		var restErr errors.RestError
