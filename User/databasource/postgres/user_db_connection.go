@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", "root", "mysql", "127.0.0.1:3306", "users")
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_ROOT_PASSWORD"), os.Getenv("MYSQL_PORT"), os.Getenv("MYSQL_DATABSE"))
 	var err error
 	Client, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
