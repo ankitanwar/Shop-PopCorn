@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("test.env")
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatalln("Could not connect to env ", err)
 		panic(err)

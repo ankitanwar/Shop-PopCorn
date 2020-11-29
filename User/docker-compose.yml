@@ -4,9 +4,15 @@ services:
     db:
       image: mysql:5.7
       ports: 
-        - 3307:3307
+        - 3306:3306
       env_file: 
         - variable.env
+      environment: 
+        MYSQL_USER: root  
+        MYSQL_PASSWORD: mysql
+        MYSQL_DATABASE: userss
+      container_name: my_go_app_db
+      
     app:
         build: .
         ports: 

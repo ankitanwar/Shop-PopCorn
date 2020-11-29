@@ -1,6 +1,8 @@
 package application
 
 import (
+	"os"
+
 	"github.com/ankitanwar/userLoginWithOAuth/Oauth/services"
 
 	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
@@ -23,5 +25,5 @@ func StartApplication() {
 	atHandler := http.NewHandler(atService)
 	router.GET("/oauth/access_token/:access_token_id", atHandler.GetByID)
 	router.POST("/oauth/access_token", atHandler.Create)
-	router.Run(":8083")
+	router.Run(os.Getenv("PORT"))
 }
