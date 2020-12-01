@@ -12,9 +12,6 @@ COPY . .
 
 ENV PORT=8081
 
-EXPOSE 8081
-
-
 RUN go build -o main .
 
 CMD ["/app/main"]

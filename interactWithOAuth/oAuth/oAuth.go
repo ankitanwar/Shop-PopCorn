@@ -1,4 +1,4 @@
-package bookoauth
+package oauth
 
 import (
 	"encoding/json"

@@ -1,0 +1,56 @@
+syntax ="proto3";
+
+package items;
+
+option go_package = "itemspb";
+
+message Item{
+    string ID=1;
+    int64 Seller=2;
+    string Title=3;
+    string Description=4;
+    int64 Price=5;
+    int64 AvailableQuantity=6;
+    int64 SoldQuantity=7;
+    string Status=8;
+}
+message CreateItemRequest{
+    Item item=1;
+}
+
+message CreateItemResposne{
+    Item item=1;
+}
+
+message GetItemRequest{
+    string ID=2;
+
+}
+message GetItemResposne{
+    Item item=1;
+}
+
+message UpdateItemRequest{
+    string ID=1;
+    Item item=2;
+}
+message UpdateItemResponse{
+    Item item=1;
+}
+
+message DeleteItemRequest{
+    string title=1;
+    int64 id=2;
+}
+message DeleteItemResponse{
+    string Operation=1;
+}
+
+
+service ItemService{
+    rpc Create(CreateItemRequest) returns (CreateItemResposne);
+    rpc Get(GetItemRequest) returns (GetItemResposne);
+    rpc Update(UpdateItemRequest) returns (UpdateItemResponse);
+    rpc Delete(DeleteItemRequest) returns (DeleteItemResponse);
+
+}
