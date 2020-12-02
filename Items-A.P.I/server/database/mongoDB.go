@@ -11,7 +11,10 @@ import (
 )
 
 var (
-	Client     *mongo.Client
+	//Client :- grpc Client
+	Client *mongo.Client
+
+	//Collection :- grpc Collection Database
 	Collection *mongo.Collection
 )
 
@@ -29,5 +32,5 @@ func init() {
 		log.Fatalln("Error while ping")
 		panic(err)
 	}
-	Collection = Client.Database("grpc").Collection("blog")
+	Collection = Client.Database("grpc").Collection("Items")
 }

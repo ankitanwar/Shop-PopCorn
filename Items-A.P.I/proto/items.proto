@@ -40,7 +40,7 @@ message UpdateItemResponse{
 
 message DeleteItemRequest{
     string title=1;
-    int64 id=2;
+    string id=2;
 }
 message DeleteItemResponse{
     string Operation=1;

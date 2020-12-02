@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/signal"
 
-	itemspb "github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/proto"
-	db "github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/server/database"
+	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
+	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
 	"github.com/grpc/grpc-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -36,11 +36,13 @@ func main() {
 		panic(err)
 	}
 	opts := []grpc.ServerOption{}
-	s := grpc.NewServer(opts...)
-	itemspb.RegisterItemServiceServer(s, &ItemService{})
+
+	var ser *grpc.Server
+	ser = grpc.NewServer(opts...)
+	itemspb.RegisterItemServiceServer(ser, &ItemService{})
 
 	go func() {
-		if err := s.Serve(lis); err != nil {
+		if err := ser.Serve(lis); err != nil {
 			log.Fatalln("Unable to server")
 			panic(err)
 		}
@@ -51,7 +53,7 @@ func main() {
 	signal.Notify(ch, os.Interrupt)
 	<-ch
 	fmt.Println("Stopping the server")
-	s.Stop()
+	ser.Stop()
 	fmt.Println("closing the listner")
 	lis.Close()
 	fmt.Println("Closing MongoDB Sever")

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	userdb "github.com/ankitanwar/user-api/databasource/postgres"
-	cryptos "github.com/ankitanwar/user-api/utils/cryptoUtils"
+	userdb "github.com/ankitanwar/e-Commerce/User/databasource/postgres"
+	cryptos "github.com/ankitanwar/e-Commerce/User/utils/cryptoUtils"
 )
 
 const (

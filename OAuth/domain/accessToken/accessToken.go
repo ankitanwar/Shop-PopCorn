@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	cryptos "github.com/ankitanwar/userLoginWithOAuth/Oauth/utils/cryptoUtils"
+	cryptos "github.com/ankitanwar/e-Commerce/Oauth/utils/cryptoUtils"
 )
 
 const (

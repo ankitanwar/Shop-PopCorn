@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	"github.com/ankitanwar/user-api/domain/users"
+	"github.com/ankitanwar/e-Commerce/User/domain/users"
 )
 
 var (

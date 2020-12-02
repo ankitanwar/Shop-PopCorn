@@ -7,8 +7,9 @@ import (
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	bookoauth "github.com/ankitanwar/bookStore-OAuth/oAuth"
-	"github.com/ankitanwar/user-api/domain/users"
-	"github.com/ankitanwar/user-api/services"
+	"github.com/ankitanwar/e-Commerce/User/domain/users"
+	"github.com/ankitanwar/e-Commerce/User/services"
+	oauth "github.com/ankitanwar/e-Commerce/interactWithOAuth/oAuth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,12 +36,12 @@ func CreateUser(c *gin.Context) {
 		c.JSON(saverr.Status, saverr)
 		return
 	}
-	c.JSON(http.StatusCreated, result.MarshallUser(bookoauth.IsPublic(c.Request)))
+	c.JSON(http.StatusCreated, result.MarshallUser(oauth.IsPublic(c.Request)))
 }
 
 //GetUser : To get the user from the database
 func GetUser(c *gin.Context) {
-	if err := bookoauth.AuthenticateRequest(c.Request); err != nil {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
 		fmt.Println("This is working")
 		c.JSON(err.Status, err)
 		return

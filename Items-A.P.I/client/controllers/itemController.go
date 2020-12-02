@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	itemspb "github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/proto"
-	"github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/server/domian/items"
-	oauth "github.com/ankitanwar/userLoginWithOAuth/interactWithOAuth/oAuth"
+	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
+	"github.com/ankitanwar/e-Commerce/Items-A.P.I/server/domian/items"
+	oauth "github.com/ankitanwar/e-Commerce/interactWithOAuth/oAuth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ var (
 type itemControllerInterface interface {
 	Create(c *gin.Context)
 	Get(c *gin.Context)
-	Search(c *gin.Context)
+	Delete(c *gin.Context)
 }
 type itemControllerStruct struct {
 }
@@ -46,10 +46,28 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 
 //Get : To get the particaular item by given ID
 func (i *itemControllerStruct) Get(c *gin.Context) {
-
+	oid := c.Param("id")
+	toFind := &itemspb.GetItemRequest{
+		ID: oid,
+	}
+	res, err := items.Services.Get(context.Background(), toFind)
+	if err != nil {
+		c.JSON(http.StatusFound, err)
+		return
+	}
+	c.JSON(http.StatusOK, res)
 }
 
 //Search : To search for the items with given ID
-func (i *itemControllerStruct) Search(c *gin.Context) {
-
+func (i *itemControllerStruct) Delete(c *gin.Context) {
+	oid := c.Param("id")
+	toDelete := &itemspb.DeleteItemRequest{
+		Id: oid,
+	}
+	res, err := items.Services.Delete(context.Background(), toDelete)
+	if err != nil {
+		c.JSON(http.StatusFound, err)
+		return
+	}
+	c.JSON(http.StatusOK, res)
 }

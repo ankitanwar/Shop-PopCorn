@@ -3,11 +3,11 @@ package application
 import (
 	"os"
 
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/services"
+	"github.com/ankitanwar/e-Commerce/Oauth/services"
 
-	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/http"
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/repository/db"
+	mongod "github.com/ankitanwar/e-Commerce/Oauth/clients"
+	"github.com/ankitanwar/e-Commerce/Oauth/http"
+	"github.com/ankitanwar/e-Commerce/Oauth/repository/db"
 
 	"github.com/gin-gonic/gin"
 )

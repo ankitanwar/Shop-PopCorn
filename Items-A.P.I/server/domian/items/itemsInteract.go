@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	itemspb "github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/proto"
-	db "github.com/ankitanwar/userLoginWithOAuth/Items-A.P.I/server/database"
+	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
+	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/internal/status"
 )
 
 var (
@@ -91,5 +93,19 @@ func (s *ItemService) Update(ctx context.Context, req *itemspb.UpdateItemRequest
 
 //Delete : To delete the item by particular ID
 func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest) (*itemspb.DeleteItemResponse, error) {
-	return nil, nil
+	oid, _ := primitive.ObjectIDFromHex(req.GetId())
+	filter := bson.M{"id": oid}
+	res, err := db.Collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	if res.DeletedCount == 0 {
+		return nil, status.Err(
+			codes.NotFound,
+			fmt.Sprintf("Id doesnt found in the database %v", req.GetId()),
+		)
+	}
+	return &itemspb.DeleteItemResponse{
+		Operation: req.GetId(),
+	}, nil
 }

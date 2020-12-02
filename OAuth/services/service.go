@@ -2,8 +2,8 @@ package services
 
 import (
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/repository/db"
+	accesstoken "github.com/ankitanwar/e-Commerce/Oauth/domain/accessToken"
+	"github.com/ankitanwar/e-Commerce/Oauth/repository/db"
 )
 
 //Service : Interface for services

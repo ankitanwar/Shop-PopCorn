@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/ankitanwar/Items-A.P.I/application"
+	"github.com/ankitanwar/e-Commerce/Items-A.P.I/client/application"
 )
 
 func main() {
-	application.StartApplication()
+	application.StartClient()
 }

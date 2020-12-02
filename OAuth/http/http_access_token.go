@@ -3,9 +3,9 @@ package http
 import (
 	"net/http"
 
-	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
+	accesstoken "github.com/ankitanwar/e-Commerce/Oauth/domain/accessToken"
 
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/services"
+	"github.com/ankitanwar/e-Commerce/Oauth/services"
 
 	"github.com/gin-gonic/gin"
 )

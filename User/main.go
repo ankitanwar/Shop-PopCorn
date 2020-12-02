@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/ankitanwar/user-api/app"
+	"github.com/ankitanwar/e-Commerce/User/app"
 	"github.com/joho/godotenv"
 )
 

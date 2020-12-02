@@ -1,8 +1,8 @@
 package db
 
 import (
-	mongod "github.com/ankitanwar/userLoginWithOAuth/Oauth/clients"
-	accesstoken "github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/accessToken"
+	mongod "github.com/ankitanwar/e-Commerce/Oauth/clients"
+	accesstoken "github.com/ankitanwar/e-Commerce/Oauth/domain/accessToken"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"

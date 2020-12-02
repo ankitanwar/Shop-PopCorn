@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	"github.com/ankitanwar/userLoginWithOAuth/Oauth/domain/users"
+	"github.com/ankitanwar/e-Commerce/Oauth/domain/users"
 	"github.com/mercadolibre/golang-restclient/rest"
 )
 
