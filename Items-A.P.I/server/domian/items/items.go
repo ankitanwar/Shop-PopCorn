@@ -10,13 +10,13 @@ import (
 
 	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
 	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
-	"github.com/grpc/grpc-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc"
 )
 
 //Item : Struct it contains all the value item has
 type Item struct {
-	ID                primitive.ObjectID `bson:"id"`
+	ID                primitive.ObjectID `bson:"_id,omitempty"`
 	Seller            int64              `bson:"seller"`
 	Title             string             `bson:"title"`
 	Description       string             `bson:"description"`
@@ -26,9 +26,8 @@ type Item struct {
 	Status            string             `bson:"status"`
 }
 
-//ItemService : Services Available for items
-
-func main() {
+//StartServer : To start the the item server
+func StartServer() {
 	lis, err := net.Listen("tcp", "0.0.0.0:4040")
 	if err != nil {
 		log.Fatalln("Unable to listen")
@@ -36,13 +35,11 @@ func main() {
 		panic(err)
 	}
 	opts := []grpc.ServerOption{}
-
-	var ser *grpc.Server
-	ser = grpc.NewServer(opts...)
-	itemspb.RegisterItemServiceServer(ser, &ItemService{})
+	srv := grpc.NewServer(opts...)
+	itemspb.RegisterItemServiceServer(srv, &ItemService{})
 
 	go func() {
-		if err := ser.Serve(lis); err != nil {
+		if err := srv.Serve(lis); err != nil {
 			log.Fatalln("Unable to server")
 			panic(err)
 		}
@@ -53,7 +50,7 @@ func main() {
 	signal.Notify(ch, os.Interrupt)
 	<-ch
 	fmt.Println("Stopping the server")
-	ser.Stop()
+	srv.Stop()
 	fmt.Println("closing the listner")
 	lis.Close()
 	fmt.Println("Closing MongoDB Sever")

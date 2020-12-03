@@ -8,8 +8,6 @@ import (
 	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/internal/status"
 )
 
 var (
@@ -59,7 +57,7 @@ func (s *ItemService) Get(ctx context.Context, req *itemspb.GetItemRequest) (*it
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.M{"id": oid}
+	filter := bson.M{"_id": oid}
 	res := &itemspb.Item{}
 	findErr := db.Collection.FindOne(context.Background(), filter).Decode(res)
 	if findErr != nil {
@@ -100,10 +98,7 @@ func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest
 		return nil, err
 	}
 	if res.DeletedCount == 0 {
-		return nil, status.Err(
-			codes.NotFound,
-			fmt.Sprintf("Id doesnt found in the database %v", req.GetId()),
-		)
+		return nil, err
 	}
 	return &itemspb.DeleteItemResponse{
 		Operation: req.GetId(),

@@ -7,7 +7,7 @@ import (
 
 	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
 	"github.com/gin-gonic/gin"
-	"github.com/grpc/grpc-go"
+	"google.golang.org/grpc"
 )
 
 var (
