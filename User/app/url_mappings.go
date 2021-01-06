@@ -12,4 +12,7 @@ func mapUrls() {
 	router.DELETE("/users/:user_id", controllers.DeleteUser)
 	router.GET("/internal/users/search", controllers.FindByStatus)
 	router.POST("/user/login", controllers.Login)
+	router.GET("/user/cart/:userID", controllers.GetCart)
+	router.POST("/user/cart/:userID", controllers.AddToCart)
+	router.DELETE("/user/cart/:userID", controllers.DeleteFromCart)
 }

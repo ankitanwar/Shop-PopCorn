@@ -2,7 +2,9 @@ package items
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
 	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
@@ -43,7 +45,6 @@ func (s *ItemService) Create(ctx context.Context, req *itemspb.CreateItemRequest
 			Description:       item.GetDescription(),
 			Price:             item.GetPrice(),
 			AvailableQuantity: item.GetAvailableQuantity(),
-			SoldQuantity:      item.GetSoldQuantity(),
 			Status:            item.GetStatus(),
 		},
 	}, nil
@@ -102,5 +103,41 @@ func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest
 	}
 	return &itemspb.DeleteItemResponse{
 		Operation: req.GetId(),
+	}, nil
+}
+
+//Buy : To buy the given item
+func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*itemspb.BuyItemResponse, error) {
+	Itemid, _ := primitive.ObjectIDFromHex(req.GetItemID())
+	filter := bson.M{"id": Itemid}
+	result := &itemspb.Item{}
+	err := db.Collection.FindOne(context.Background(), filter).Decode(result)
+	if err != nil {
+		return nil, err
+	}
+	if result.AvailableQuantity <= 0 {
+		return nil, errors.New("Out Of Stock")
+	}
+	result.AvailableQuantity--
+	if result.AvailableQuantity <= 0 {
+		result.Status = "Currently Out Of Stock"
+	}
+	_, updateError := db.Collection.UpdateOne(context.Background(), filter, result)
+	if updateError != nil {
+		return nil, err
+	}
+	deliveryTime := time.Now()
+	deliveryTime.Format("01-02-2006")
+	deliveryTime = deliveryTime.AddDate(0, 0, 10)
+	filter2 := bson.M{"id": req.UserID}
+	user := &UserHistory{}
+	userFindError := db.History.FindOne(context.Background(), filter2).Decode(user)
+	if userFindError == nil { //User is purchasing the item first time
+		user.orders = append(user.orders, *result)
+	}
+	return &itemspb.BuyItemResponse{
+		ExceptedDateOfDilvery: deliveryTime.String(),
+		Title:                 result.Title,
+		Price:                 result.Price,
 	}, nil
 }

@@ -1,7 +1,8 @@
-package db
+package cart
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,14 +12,11 @@ import (
 )
 
 var (
-	//Client :- grpc Client
+	//Client :- MongoDB Client
 	Client *mongo.Client
 
-	//Collection :- grpc Collection Database
+	//Collection :- MongoDB collection
 	Collection *mongo.Collection
-
-	//History : To connect to client Order History
-	History *mongo.Collection
 )
 
 func init() {
@@ -35,6 +33,10 @@ func init() {
 		log.Fatalln("Error while ping")
 		panic(err)
 	}
-	Collection = Client.Database("grpc").Collection("Items")
-	Collection = Client.Database("grpc").Collection("History")
+	Collection = Client.Database("Users").Collection("Cart")
+	err = Client.Ping(context.Background(), readpref.Primary())
+	if err != nil {
+		fmt.Println("Error while connecting to the mongoDB database")
+		panic(err)
+	}
 }

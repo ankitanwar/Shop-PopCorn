@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 )
@@ -101,11 +99,9 @@ func (u *userServices) FindByStatus(status string) (users.Users, *errors.RestErr
 }
 
 func (u *userServices) LoginUser(request users.LoginRequest) (*users.User, *errors.RestError) {
-	fmt.Println("service", request.Email, request.Password)
 	user := &users.User{}
 	user.Email = request.Email
 	user.Password = request.Password
-	fmt.Println("In service we got", user.Email, user.Password)
 	if err := user.GetUserByEmailAndPassword(); err != nil {
 		return nil, err
 	}

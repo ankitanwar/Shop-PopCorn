@@ -118,12 +118,77 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	fmt.Println("id and password at context is", verifyUser.Password, verifyUser.Email)
 	user, err := services.UserServices.LoginUser(verifyUser)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
 	c.JSON(http.StatusOK, user.MarshallUser(bookoauth.IsPublic(c.Request)))
+
+}
+
+//GetCart : To get the items in the cart
+func GetCart(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	userID, err := getUserid(c.Param("userID"))
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	products, viewError := services.UserCart.ViewCart(userID)
+	if viewError != nil {
+		c.JSON(http.StatusInternalServerError, viewError)
+		return
+	}
+	c.JSON(http.StatusAccepted, products)
+}
+
+//AddToCart : Adding item to the cart
+func AddToCart(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	userID, err := getUserid(c.Param("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	itemID := 0
+	price := 100
+	itemTitle := "testing"
+	addError := services.UserCart.AddToCart(userID, itemID, price, itemTitle)
+	if addError != nil {
+		c.JSON(http.StatusInternalServerError, addError)
+		return
+	}
+	c.JSON(http.StatusAccepted, "Item Has been added Successfully")
+
+}
+
+//DeleteFromCart : To delete the item from the user cart
+func DeleteFromCart(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	userID, err := getUserid(c.Param("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	itemID := 0
+	delError := services.UserCart.RemoveFromCart(userID, itemID)
+	if delError != nil {
+		c.JSON(http.StatusInternalServerError, delError)
+		return
+	}
+	c.JSON(http.StatusAccepted, "Item Has been deleted Successfully")
 
 }

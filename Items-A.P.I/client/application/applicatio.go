@@ -22,7 +22,7 @@ func StartClient() {
 	urlMapping()
 	connectServer()
 	go func() {
-		router.Run(":8081")
+		router.Run(":8086")
 	}()
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)

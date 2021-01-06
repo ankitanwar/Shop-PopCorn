@@ -1,7 +1,7 @@
 package application
 
 import (
-	"os"
+
 
 	"github.com/ankitanwar/e-Commerce/Oauth/services"
 
@@ -25,5 +25,5 @@ func StartApplication() {
 	atHandler := http.NewHandler(atService)
 	router.GET("/oauth/access_token/:access_token_id", atHandler.GetByID)
 	router.POST("/oauth/access_token", atHandler.Create)
-	router.Run(os.Getenv("PORT"))
+	router.Run(":8080")
 }

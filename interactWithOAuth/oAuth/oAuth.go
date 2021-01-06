@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
@@ -23,7 +22,7 @@ const (
 
 var (
 	oauthRestClient = rest.RequestBuilder{
-		BaseURL: "http://localhost:8083",
+		BaseURL: "http://localhost:8080",
 		Timeout: 200 * time.Millisecond,
 	}
 )
@@ -69,14 +68,15 @@ func GetClientID(request *http.Request) int {
 //AuthenticateRequest : To authenticate the given request
 func AuthenticateRequest(request *http.Request) *errors.RestError {
 	if request == nil {
-		return nil
+		return errors.NewInternalServerError("Invalid Error")
 	}
 
 	cleanRequest(request)
 
-	accessTokenID := strings.TrimSpace(request.URL.Query().Get(paramAccessToken))
+	accessTokenID := request.FormValue("access_token")
+	fmt.Println("The value of access token is ", accessTokenID)
 	if accessTokenID == "" {
-		return nil
+		return errors.NewBadRequest("InValid Access Token")
 	}
 
 	at, err := getAccessToken(accessTokenID)

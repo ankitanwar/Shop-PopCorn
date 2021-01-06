@@ -10,7 +10,7 @@ type PublicUser struct {
 	Email     string `json:"email"`
 }
 
-//PrivateUser : When user is interacting with itself
+//PrivateUser : When user is interacting with itself or internally with the app
 type PrivateUser struct {
 	ID          int    `json:"id"`
 	FirstName   string `json:"first_name"`

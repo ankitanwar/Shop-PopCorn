@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
@@ -42,6 +43,26 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result)
 
+}
+func (i *itemControllerStruct) Buy(c *gin.Context) {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	itemID := c.Param("itemsID")
+	userID := int64(oauth.GetClientID(c.Request))
+	buyRequest := &itemspb.BuyItemRequest{ItemID: itemID, UserID: userID}
+	item, err := items.Services.Buy(context.Background(), buyRequest)
+	if err != nil {
+		if err == errors.New("Out Of Stock") {
+			c.JSON(http.StatusNotFound, "Item Is Currently Out Of stock")
+		} else {
+			c.JSON(http.StatusInternalServerError, "Some Error has been occured")
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, item)
 }
 
 //Get : To get the particaular item by given ID

@@ -14,7 +14,7 @@ const (
 	insertUser                = "INSERT INTO users(first_name,last_name,email,date_created,status,password)VALUES(?,?,?,?,?,?) "
 	getUser                   = "SELECT id,first_name,last_name,email,date_created FROM users WHERE id=?;"
 	errNoRows                 = "no rows in result set"
-	updateUser                = "UPDATE users SET first_name=?,last_name=?,email=? WHERE id=?"
+	updateUser                = "UPDATE users SET first_name=?,last_name=?,email=?,phone=? WHERE id=?"
 	deleteUser                = "DELETE FROM users WHERE id=?"
 	getUserByStatus           = "SELECT id,first_name,last_name,email,date_created FROM users WHERE status=?;"
 	getUserByEmailAndPassword = "SELECT id,first_name,last_name,email,date_created FROM users WHERE email=? AND password=?;"
@@ -75,7 +75,7 @@ func (user *User) Update() *errors.RestError {
 		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.ID)
+	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.ID, user.PhoneNo)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}

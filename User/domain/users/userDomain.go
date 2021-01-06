@@ -15,6 +15,7 @@ type User struct {
 	DateCreated string `json:"date_created"`
 	Status      string `json:"status"`
 	Password    string `json:"password"`
+	PhoneNo     string `json:"phone"`
 }
 
 //Users : It will return the slices of users
@@ -35,8 +36,13 @@ func (user *User) Validate() *errors.RestError {
 		return err
 	}
 	user.Password = strings.TrimSpace(user.Password)
-	if user.Password == "" {
+	if user.Password == "" || len(user.Password) < 5 {
 		return errors.NewBadRequest("Please Enter the valid password")
+	}
+	if len(user.PhoneNo) != 0 {
+		if len(user.PhoneNo) > 10 || len(user.PhoneNo) < 10 {
+			return errors.NewBadRequest("Please Enter the valid phone Number")
+		}
 	}
 	return nil
 }
