@@ -21,6 +21,7 @@ const (
 	deleteUser                = "DELETE FROM users WHERE id=?"
 	getUserByStatus           = "SELECT id,first_name,last_name,email,date_created FROM users WHERE status=?;"
 	getUserByEmailAndPassword = "SELECT id,first_name,last_name,email,date_created FROM users WHERE email=? AND password=?;"
+	mongoNotFound             = "mongo: no documents in result"
 )
 
 //Save : To save the user into the database
@@ -62,7 +63,7 @@ func (user *User) Get() *errors.RestError {
 	}
 	defer stmt.Close()
 	result := stmt.QueryRow(user.ID) //to query the single row
-	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated); err != nil {
+	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.PhoneNo); err != nil {
 		if strings.Contains(err.Error(), errNoRows) {
 			return errors.NewNotFound(fmt.Sprintf("No user with exist with id %v ", user.ID))
 		}
@@ -149,24 +150,34 @@ func (address *Address) GetUserAddress(id int) (*Address, *errors.RestError) {
 	filter := bson.M{"user_id": id}
 	err := mongo.Address.FindOne(context.Background(), filter).Decode(address)
 	if err != nil {
-		return nil, errors.NewInternalServerError("Some Internal Server Error has been occured")
+		return nil, errors.NewInternalServerError("Error While fetching the address")
 	}
 	return address, nil
 }
 
 //AddAddress : To add the address of the user into the database
-func (address *UserAddress) AddAddress(userID int) *errors.RestError {
+func (address *UserAddress) AddAddress(userID int) (*Address, *errors.RestError) {
 	filter := bson.M{"user_id": userID}
 	add := &Address{}
 	err := mongo.Address.FindOne(context.Background(), filter).Decode(add)
 	if err != nil {
-		return errors.NewInternalServerError("Some Internal Server Error has been occured")
+		if err.Error() == mongoNotFound {
+			add.UserID = userID
+			add.list = append(add.list, *address)
+			_, err := mongo.Address.InsertOne(context.Background(), add)
+			if err != nil {
+				return nil, errors.NewInternalServerError("Error while saving the address")
+			}
+			return add, nil
+
+		}
+		return nil, errors.NewInternalServerError("Some Internal Server Error has been occured")
 	}
 	add.list = append(add.list, *address)
 	_, err = mongo.Address.UpdateOne(context.Background(), filter, add)
 	if err != nil {
-		return errors.NewInternalServerError("Error while saving the database")
+		return nil, errors.NewInternalServerError("Error while saving the database")
 	}
-	return nil
+	return add, nil
 
 }

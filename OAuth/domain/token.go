@@ -1,9 +1,11 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
+	cryptos "github.com/ankitanwar/e-Commerce/User/utils/cryptoUtils"
 )
 
 const (
@@ -42,4 +44,9 @@ func (token *AccessToken) GetNewAccessToken() {
 //IsExpired : To Check whether the givenaccess token is experied or not
 func (token *AccessToken) IsExpired() bool {
 	return time.Unix(token.Expires, 0).Before(time.Now().UTC())
+}
+
+//GenerateAccessToken : TO generate the new access token
+func (token *AccessToken) GenerateAccessToken() {
+	token.Token = cryptos.GetMd5(fmt.Sprintf("at-%d-%d-ran", token.UserID, token.Expires))
 }

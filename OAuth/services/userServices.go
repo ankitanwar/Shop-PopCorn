@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
@@ -35,7 +34,6 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
 	}
-	fmt.Println("The value of domain is ", user)
 	token := &domain.AccessToken{}
 	filter := bson.M{"user_id": user.UserID}
 	findErr := mongo.Collection.FindOne(context.Background(), filter).Decode(token)
@@ -43,13 +41,21 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 		if findErr.Error() == NotFound {
 			token.UserID = user.UserID
 			token.Email = user.Email
+			token.GetNewAccessToken()
+			token.GenerateAccessToken()
+			_, err := mongo.Collection.InsertOne(context.Background(), token)
+			if err != nil {
+				return nil, errors.NewInternalServerError("Error while creatubg the access token")
+			}
+			return token, nil
 		}
 		return nil, errors.NewInternalServerError("Cannot find the user")
 	}
 	token.GetNewAccessToken()
+	token.GenerateAccessToken()
 	_, updateErr := mongo.Collection.UpdateOne(context.Background(), filter, token)
 	if updateErr != nil {
-		return nil, errors.NewInternalServerError("Erro while updating the access token")
+		return nil, errors.NewInternalServerError(updateErr.Error())
 	}
 	return token, nil
 

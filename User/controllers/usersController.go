@@ -229,10 +229,10 @@ func AddAddress(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	err = services.UserServices.AddAddress(userID, *address)
+	res, err := services.UserServices.AddAddress(userID, *address)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusAccepted, address)
+	c.JSON(http.StatusAccepted, res)
 }

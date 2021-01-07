@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
@@ -14,7 +13,6 @@ import (
 
 const (
 	headerXPublic   = "X-Public"
-	headerXClientID = "X-Client-Id"
 	headerXCallerID = "X-Caller-Id"
 
 	paramAccessToken = "access_token"
@@ -22,15 +20,14 @@ const (
 
 var (
 	oauthRestClient = rest.RequestBuilder{
-		BaseURL: "http://localhost:8080",
+		BaseURL: "http://localhost:8090",
 		Timeout: 200 * time.Millisecond,
 	}
 )
 
 type accessToken struct {
-	ID       string `json:"id"`
-	UserID   int64  `json:"user_id"`
-	ClientID int64  `json:"client_id"`
+	UserID int64  `json:"user_id"`
+	Email  string `json:"email"`
 }
 
 //IsPublic : To validate the request whether the request is public or not
@@ -42,27 +39,12 @@ func IsPublic(request *http.Request) bool {
 }
 
 //GetCallerID : To get the caller id from the url
-func GetCallerID(request *http.Request) int {
+func GetCallerID(request *http.Request) string {
 	if request == nil {
-		return 0
+		return ""
 	}
-	callerID, err := strconv.Atoi(request.Header.Get(headerXCallerID))
-	if err != nil {
-		return 0
-	}
+	callerID := request.Header.Get(headerXCallerID)
 	return callerID
-}
-
-//GetClientID : To get the client id
-func GetClientID(request *http.Request) int {
-	if request == nil {
-		return 0
-	}
-	clientID, err := strconv.Atoi(request.Header.Get(headerXClientID))
-	if err != nil {
-		return 0
-	}
-	return clientID
 }
 
 //AuthenticateRequest : To authenticate the given request
@@ -71,36 +53,28 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 		return errors.NewInternalServerError("Invalid Error")
 	}
 
-	cleanRequest(request)
-
-	accessTokenID := request.FormValue("access_token")
-	fmt.Println("The value of access token is ", accessTokenID)
+	accessTokenID := request.Header.Get(paramAccessToken)
 	if accessTokenID == "" {
 		return errors.NewBadRequest("InValid Access Token")
 	}
-
-	at, err := getAccessToken(accessTokenID)
+	userID := GetCallerID(request)
+	fmt.Println("The value of userId is ", userID)
+	if len(userID) <= 0 {
+		return errors.NewBadRequest("Invalid User ID")
+	}
+	at, err := getAccessToken(accessTokenID, userID)
 	if err != nil {
 		if err.Status == http.StatusNotFound {
 			return errors.NewNotFound("Token id is expired")
 		}
 		return err
 	}
-	request.Header.Add(headerXClientID, fmt.Sprintf("%v", at.ClientID))
 	request.Header.Add(headerXCallerID, fmt.Sprintf("%v", at.UserID))
 	return nil
 }
 
-func cleanRequest(request *http.Request) {
-	if request == nil {
-		return
-	}
-	request.Header.Del(headerXClientID)
-	request.Header.Del(headerXCallerID)
-}
-
-func getAccessToken(accessTokenID string) (*accessToken, *errors.RestError) {
-	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s", accessTokenID))
+func getAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestError) {
+	response := oauthRestClient.Get(fmt.Sprintf("/validate/%s/%s", userID, accessTokenID))
 	if response == nil || response.Response == nil {
 		return nil, errors.NewNotFound("Not found")
 	}
