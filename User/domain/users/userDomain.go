@@ -15,11 +15,42 @@ type User struct {
 	DateCreated string `json:"date_created"`
 	Status      string `json:"status"`
 	Password    string `json:"password"`
-	PhoneNo     string `json:"phone"`
+	PhoneNo     string `json:"phone"` //-> phone no is not neccessay while creating the acc
+}
+
+//Address : Address of the given user
+type Address struct {
+	UserID int           `bson:"user_id"`
+	list   []UserAddress `bson:"address"`
+}
+
+//UserAddress : Address field for the user
+type UserAddress struct {
+	Address string `json:"address"`
+	State   string `json:"state"`
+	Country string `json:"country"`
+	Phone   string `json:"phone"`
 }
 
 //Users : It will return the slices of users
 type Users []User
+
+//ValidateAddress : To validate the given aaddress
+func (ua *UserAddress) ValidateAddress() *errors.RestError {
+	if len(ua.Address) < 0 {
+		return errors.NewBadRequest("Enter the valid address")
+	}
+	if len(ua.State) < 0 {
+		return errors.NewBadRequest("Enter the valid address")
+	}
+	if len(ua.Country) < 0 {
+		return errors.NewBadRequest("Enter the valid address")
+	}
+	if len(ua.Phone) > 10 || len(ua.Phone) < 10 {
+		return errors.NewBadRequest("Please Enter the valid phone number")
+	}
+	return nil
+}
 
 //Validate : To validate the users
 func (user *User) Validate() *errors.RestError {

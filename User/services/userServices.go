@@ -19,6 +19,8 @@ type userServicesInterface interface {
 	DeleteUser(int) *errors.RestError
 	FindByStatus(string) (users.Users, *errors.RestError)
 	LoginUser(request users.LoginRequest) (*users.User, *errors.RestError)
+	GetAddress(int) (*users.Address, *errors.RestError)
+	AddAddress(int, users.UserAddress) *errors.RestError
 }
 
 //CreateUser : To save the user in the database
@@ -106,4 +108,25 @@ func (u *userServices) LoginUser(request users.LoginRequest) (*users.User, *erro
 		return nil, err
 	}
 	return user, nil
+}
+
+func (u *userServices) GetAddress(userID int) (*users.Address, *errors.RestError) {
+	address := &users.Address{}
+	add, err := address.GetUserAddress(userID)
+	if err != nil {
+		return nil, err
+	}
+	return add, nil
+}
+
+func (u *userServices) AddAddress(userID int, address users.UserAddress) *errors.RestError {
+	err := address.ValidateAddress()
+	if err != nil {
+		return err
+	}
+	err = address.AddAddress(userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

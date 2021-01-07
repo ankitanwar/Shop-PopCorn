@@ -1,18 +1,21 @@
 package users
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
+	mongo "github.com/ankitanwar/e-Commerce/User/databasource/mongoUserCart"
 	userdb "github.com/ankitanwar/e-Commerce/User/databasource/postgres"
 	cryptos "github.com/ankitanwar/e-Commerce/User/utils/cryptoUtils"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
-	insertUser                = "INSERT INTO users(first_name,last_name,email,date_created,status,password)VALUES(?,?,?,?,?,?) "
-	getUser                   = "SELECT id,first_name,last_name,email,date_created FROM users WHERE id=?;"
+	insertUser                = "INSERT INTO users(first_name,last_name,email,date_created,status,password,phone)VALUES(?,?,?,?,?,?) "
+	getUser                   = "SELECT id,first_name,last_name,email,date_created,phonr FROM users WHERE id=?;"
 	errNoRows                 = "no rows in result set"
 	updateUser                = "UPDATE users SET first_name=?,last_name=?,email=?,phone=? WHERE id=?"
 	deleteUser                = "DELETE FROM users WHERE id=?"
@@ -136,6 +139,33 @@ func (user *User) GetUserByEmailAndPassword() *errors.RestError {
 			return errors.NewNotFound(fmt.Sprintf("No user with exist with id %v ", user.ID))
 		}
 		return errors.NewInternalServerError(err.Error())
+	}
+	return nil
+
+}
+
+//GetUserAddress : To get the user address by the given id
+func (address *Address) GetUserAddress(id int) (*Address, *errors.RestError) {
+	filter := bson.M{"user_id": id}
+	err := mongo.Address.FindOne(context.Background(), filter).Decode(address)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Some Internal Server Error has been occured")
+	}
+	return address, nil
+}
+
+//AddAddress : To add the address of the user into the database
+func (address *UserAddress) AddAddress(userID int) *errors.RestError {
+	filter := bson.M{"user_id": userID}
+	add := &Address{}
+	err := mongo.Address.FindOne(context.Background(), filter).Decode(add)
+	if err != nil {
+		return errors.NewInternalServerError("Some Internal Server Error has been occured")
+	}
+	add.list = append(add.list, *address)
+	_, err = mongo.Address.UpdateOne(context.Background(), filter, add)
+	if err != nil {
+		return errors.NewInternalServerError("Error while saving the database")
 	}
 	return nil
 

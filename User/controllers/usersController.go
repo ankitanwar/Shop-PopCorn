@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,7 +41,6 @@ func CreateUser(c *gin.Context) {
 //GetUser : To get the user from the database
 func GetUser(c *gin.Context) {
 	if err := oauth.AuthenticateRequest(c.Request); err != nil {
-		fmt.Println("This is working")
 		c.JSON(err.Status, err)
 		return
 	}
@@ -191,4 +189,50 @@ func DeleteFromCart(c *gin.Context) {
 	}
 	c.JSON(http.StatusAccepted, "Item Has been deleted Successfully")
 
+}
+
+//GetAddress : To Get the address of the given user
+func GetAddress(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	userID, err := getUserid(c.Param("userID"))
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	address, err := services.UserServices.GetAddress(userID)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	c.JSON(http.StatusAccepted, address)
+}
+
+//AddAddress : To Get the address of the given user
+func AddAddress(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	address := &users.UserAddress{}
+	bindErr := c.ShouldBindJSON(address)
+	if bindErr != nil {
+		c.JSON(http.StatusBadRequest, "Error while binding to the json")
+		return
+	}
+	userID, err := getUserid(c.Param("userID"))
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	err = services.UserServices.AddAddress(userID, *address)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	c.JSON(http.StatusAccepted, address)
 }

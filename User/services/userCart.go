@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	cart "github.com/ankitanwar/e-Commerce/User/databasource/mongoUserCart"
+	mongo "github.com/ankitanwar/e-Commerce/User/databasource/mongoUserCart"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,7 +37,7 @@ type userCartInerface interface {
 func (u *userCartServices) ViewCart(userID int) ([]productDetail, error) {
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
-	err := cart.Collection.FindOne(context.Background(), filter).Decode(orders)
+	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (u *userCartServices) Checkout(userID int) {
 func (u *userCartServices) AddToCart(userID, itemID, price int, name string) error {
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
-	err := cart.Collection.FindOne(context.Background(), filter).Decode(orders)
+	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (u *userCartServices) AddToCart(userID, itemID, price int, name string) err
 		price:  price,
 	}
 	orders.products = append(orders.products, t)
-	_, updateError := cart.Collection.UpdateOne(context.Background(), filter, orders)
+	_, updateError := mongo.Collection.UpdateOne(context.Background(), filter, orders)
 	if updateError != nil {
 		return updateError
 	}
@@ -73,7 +73,7 @@ func (u *userCartServices) AddToCart(userID, itemID, price int, name string) err
 func (u *userCartServices) RemoveFromCart(userID, itemID int) error {
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
-	err := cart.Collection.FindOne(context.Background(), filter).Decode(orders)
+	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)
 	if err != nil {
 		return err
 	}

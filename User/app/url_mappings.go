@@ -4,10 +4,8 @@ import "github.com/ankitanwar/e-Commerce/User/controllers"
 
 func mapUrls() {
 	router.GET("/ping", controllers.Ping)
-
 	router.POST("/users", controllers.CreateUser)
 	router.GET("/users/:user_id", controllers.GetUser)
-	router.PUT("/users/:user_id", controllers.UpdateUser)
 	router.PATCH("/users/:user_id", controllers.UpdateUser)
 	router.DELETE("/users/:user_id", controllers.DeleteUser)
 	router.GET("/internal/users/search", controllers.FindByStatus)
@@ -15,4 +13,6 @@ func mapUrls() {
 	router.GET("/user/cart/:userID", controllers.GetCart)
 	router.POST("/user/cart/:userID", controllers.AddToCart)
 	router.DELETE("/user/cart/:userID", controllers.DeleteFromCart)
+	router.GET("/user/:userID/address", controllers.GetAddress)
+	router.POST("/user/:userID/address", controllers.AddAddress)
 }

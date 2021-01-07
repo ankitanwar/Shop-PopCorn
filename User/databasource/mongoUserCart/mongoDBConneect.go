@@ -1,4 +1,4 @@
-package cart
+package mongo
 
 import (
 	"context"
@@ -17,6 +17,9 @@ var (
 
 	//Collection :- MongoDB collection
 	Collection *mongo.Collection
+
+	//Address :- mongo collection pointer to interact with the mongodb address
+	Address *mongo.Collection
 )
 
 func init() {
@@ -39,4 +42,5 @@ func init() {
 		fmt.Println("Error while connecting to the mongoDB database")
 		panic(err)
 	}
+	Collection = Client.Database("Users").Collection("Address")
 }
