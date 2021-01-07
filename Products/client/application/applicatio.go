@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
+	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )

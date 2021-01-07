@@ -6,9 +6,9 @@ import (
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	bookoauth "github.com/ankitanwar/bookStore-OAuth/oAuth"
+	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 	"github.com/ankitanwar/e-Commerce/User/services"
-	oauth "github.com/ankitanwar/e-Commerce/interactWithOAuth/oAuth"
 	"github.com/gin-gonic/gin"
 )
 

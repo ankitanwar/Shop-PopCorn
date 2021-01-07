@@ -1,6 +1,6 @@
 package application
 
-import "github.com/ankitanwar/e-Commerce/Items-A.P.I/client/controllers"
+import "github.com/ankitanwar/e-Commerce/Products/client/controllers"
 
 func urlMapping() {
 	router.GET("/ping", controllers.PingController.Ping)

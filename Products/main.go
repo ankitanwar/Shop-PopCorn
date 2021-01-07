@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ankitanwar/e-Commerce/Items-A.P.I/client/application"
+	"github.com/ankitanwar/e-Commerce/Products/client/application"
 )
 
 func main() {

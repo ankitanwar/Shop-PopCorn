@@ -12,14 +12,11 @@ import (
 )
 
 var (
-	//Client :- MongoDB Client
+	//Client :- Pointer to the MongoDB Client
 	Client *mongo.Client
 
-	//Collection :- MongoDB collection
+	//Collection :- Pointer to the MongoDB collection
 	Collection *mongo.Collection
-
-	//Address :- mongo collection pointer to interact with the mongodb address
-	Address *mongo.Collection
 )
 
 func init() {
@@ -36,11 +33,10 @@ func init() {
 		log.Fatalln("Error while ping")
 		panic(err)
 	}
-	Collection = Client.Database("Users").Collection("Cart")
+	Collection = Client.Database("Users").Collection("AccessToken")
 	err = Client.Ping(context.Background(), readpref.Primary())
 	if err != nil {
 		fmt.Println("Error while connecting to the mongoDB database")
 		panic(err)
 	}
-	Address = Client.Database("Users").Collection("Address")
 }

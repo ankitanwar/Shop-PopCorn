@@ -1,14 +1,12 @@
 package application
 
 import (
+	"context"
+	"fmt"
+	"os"
+	"os/signal"
 
-
-	"github.com/ankitanwar/e-Commerce/Oauth/services"
-
-	mongod "github.com/ankitanwar/e-Commerce/Oauth/clients"
-	"github.com/ankitanwar/e-Commerce/Oauth/http"
-	"github.com/ankitanwar/e-Commerce/Oauth/repository/db"
-
+	mongo "github.com/ankitanwar/e-Commerce/new/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,12 +16,16 @@ var (
 
 //StartApplication : To start the application
 func StartApplication() {
-	mongod.Ping()
-	dbRepository := db.NewRepository()
-	userRepository := db.NewRestRepository()
-	atService := services.NewService(dbRepository, userRepository)
-	atHandler := http.NewHandler(atService)
-	router.GET("/oauth/access_token/:access_token_id", atHandler.GetByID)
-	router.POST("/oauth/access_token", atHandler.Create)
-	router.Run(":8080")
+	mapURL()
+	go func() {
+		router.Run(":8090")
+	}()
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+	<-ch
+	fmt.Println("Closing the Connection with server")
+	err := mongo.Client.Disconnect(context.Background())
+	if err != nil {
+		fmt.Println("Error while closing the connection with mongoDB")
+	}
 }

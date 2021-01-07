@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
-	db "github.com/ankitanwar/e-Commerce/Items-A.P.I/server/database"
+	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+	db "github.com/ankitanwar/e-Commerce/Products/server/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

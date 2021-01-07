@@ -10,3 +10,7 @@ func Ping(c *gin.Context) {
 		"message": "hello world",
 	})
 }
+
+
+
+//-> mobile webapp server frontside  --> json --prototbuf (itesm api)

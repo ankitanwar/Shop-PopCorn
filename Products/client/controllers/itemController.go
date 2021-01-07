@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Items-A.P.I/proto"
-	"github.com/ankitanwar/e-Commerce/Items-A.P.I/server/domian/items"
+	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+	"github.com/ankitanwar/e-Commerce/Products/server/domian/items"
 	oauth "github.com/ankitanwar/e-Commerce/interactWithOAuth/oAuth"
 	"github.com/gin-gonic/gin"
 )

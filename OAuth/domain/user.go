@@ -1,14 +1,14 @@
-package users
+package domain
 
-//User : User strcut
+//User : attributes of user
 type User struct {
-	ID        int    `json:"id"`
+	UserID    int    `json:"id"`
 	FirstName string `json:"first_name"`
-	LastName  string `json:"last__name"`
+	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
-//LoginRequest : Struct to send login request from the user and validate the user
+//LoginRequest : To request for login from the given email and password
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
