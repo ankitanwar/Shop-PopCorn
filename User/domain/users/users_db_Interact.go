@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	insertUser                = "INSERT INTO users(first_name,last_name,email,date_created,status,password,phone)VALUES(?,?,?,?,?,?) "
-	getUser                   = "SELECT id,first_name,last_name,email,date_created,phonr FROM users WHERE id=?;"
+	insertUser                = "INSERT INTO users(first_name,last_name,email,date_created,status,password,phone)VALUES(?,?,?,?,?,?,?) "
+	getUser                   = "SELECT id,first_name,last_name,email,date_created,phone FROM users WHERE id=?;"
 	errNoRows                 = "no rows in result set"
 	updateUser                = "UPDATE users SET first_name=?,last_name=?,email=?,phone=? WHERE id=?"
 	deleteUser                = "DELETE FROM users WHERE id=?"
@@ -34,7 +34,7 @@ func (user *User) Save() *errors.RestError {
 	user.DateCreated = now.Format("02-01-2006 15:04")
 	user.Password = cryptos.GetMd5(user.Password)
 	user.Status = "Active"
-	insert, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated, user.Status, user.Password)
+	insert, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated, user.Status, user.Password, user.PhoneNo)
 
 	// insert, err := stmt.Exec(insertUser, user.FirstName, user.LastName, user.Email, user.DateCreated) we can also do it like this
 

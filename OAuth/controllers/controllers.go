@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ankitanwar/e-Commerce/new/domain"
-	"github.com/ankitanwar/e-Commerce/new/services"
+	"github.com/ankitanwar/e-Commerce/Oauth/domain"
+	"github.com/ankitanwar/e-Commerce/Oauth/services"
 	"github.com/gin-gonic/gin"
 )
 

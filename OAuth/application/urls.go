@@ -1,6 +1,6 @@
 package application
 
-import controller "github.com/ankitanwar/e-Commerce/new/controllers"
+import controller "github.com/ankitanwar/e-Commerce/Oauth/controllers"
 
 func mapURL() {
 	router.POST("/access_token", controller.CreateAccessToken)

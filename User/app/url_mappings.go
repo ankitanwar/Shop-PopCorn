@@ -13,6 +13,6 @@ func mapUrls() {
 	router.GET("/user/cart/:userID", controllers.GetCart)
 	router.POST("/user/cart/:userID", controllers.AddToCart)
 	router.DELETE("/user/cart/:userID", controllers.DeleteFromCart)
-	router.GET("/user/:userID/address", controllers.GetAddress)
-	router.POST("/user/:userID/address", controllers.AddAddress)
+	router.GET("/user//address/:userID", controllers.GetAddress)
+	router.POST("/user/address/:userID", controllers.AddAddress)
 }

@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	mongo "github.com/ankitanwar/e-Commerce/new/database"
+	mongo "github.com/ankitanwar/e-Commerce/Oauth/database"
 	"github.com/gin-gonic/gin"
 )
 

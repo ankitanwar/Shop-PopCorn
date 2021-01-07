@@ -3,11 +3,12 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	mongo "github.com/ankitanwar/e-Commerce/new/database"
-	"github.com/ankitanwar/e-Commerce/new/domain"
+	mongo "github.com/ankitanwar/e-Commerce/Oauth/database"
+	"github.com/ankitanwar/e-Commerce/Oauth/domain"
 	"github.com/mercadolibre/golang-restclient/rest"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -17,6 +18,8 @@ var (
 		BaseURL: "http://localhost:8081",
 		Timeout: 100 * time.Millisecond,
 	}
+	//NotFound : If the id is not present in the database
+	NotFound = "mongo: no documents in result"
 )
 
 //CreateAccessToken : To create the new access Token
@@ -32,10 +35,15 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
 	}
+	fmt.Println("The value of domain is ", user)
 	token := &domain.AccessToken{}
 	filter := bson.M{"user_id": user.UserID}
 	findErr := mongo.Collection.FindOne(context.Background(), filter).Decode(token)
 	if findErr != nil {
+		if findErr.Error() == NotFound {
+			token.UserID = user.UserID
+			token.Email = user.Email
+		}
 		return nil, errors.NewInternalServerError("Cannot find the user")
 	}
 	token.GetNewAccessToken()
