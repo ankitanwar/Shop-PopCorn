@@ -160,10 +160,11 @@ func (address *UserAddress) AddAddress(userID int) (*Address, *errors.RestError)
 	filter := bson.M{"user_id": userID}
 	add := &Address{}
 	err := mongo.Address.FindOne(context.Background(), filter).Decode(add)
+	fmt.Println("The value of address is ", address)
 	if err != nil {
 		if err.Error() == mongoNotFound {
 			add.UserID = userID
-			add.list = append(add.list, *address)
+			add.List = append(add.List, *address)
 			_, err := mongo.Address.InsertOne(context.Background(), add)
 			if err != nil {
 				return nil, errors.NewInternalServerError("Error while saving the address")
@@ -173,8 +174,11 @@ func (address *UserAddress) AddAddress(userID int) (*Address, *errors.RestError)
 		}
 		return nil, errors.NewInternalServerError("Some Internal Server Error has been occured")
 	}
-	add.list = append(add.list, *address)
-	_, err = mongo.Address.UpdateOne(context.Background(), filter, add)
+	add.List = append(add.List, *address)
+	update := bson.D{
+		{"$set", bson.D{{"list", add.List}}},
+	}
+	_, err = mongo.Address.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return nil, errors.NewInternalServerError("Error while saving the database")
 	}

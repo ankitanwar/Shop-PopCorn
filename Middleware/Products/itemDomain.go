@@ -1,4 +1,4 @@
-package services
+package product
 
 //Item : Item and its fields
 type Item struct {

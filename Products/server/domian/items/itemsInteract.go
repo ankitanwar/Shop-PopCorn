@@ -2,7 +2,6 @@ package items
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -108,33 +107,21 @@ func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest
 
 //Buy : To buy the given item
 func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*itemspb.BuyItemResponse, error) {
-	Itemid, _ := primitive.ObjectIDFromHex(req.GetItemID())
-	filter := bson.M{"id": Itemid}
+	itemID := req.GetItemID()
+	oid, err := primitive.ObjectIDFromHex(itemID)
+	userID := req.GetUserID()
+	filter := bson.M{"_id": oid}
 	result := &itemspb.Item{}
-	err := db.Collection.FindOne(context.Background(), filter).Decode(result)
+	err = db.Collection.FindOne(context.Background(), filter).Decode(result)
+	fmt.Println("The value of result is ", result)
 	if err != nil {
-		return nil, err
-	}
-	if result.AvailableQuantity <= 0 {
-		return nil, errors.New("Out Of Stock")
-	}
-	result.AvailableQuantity--
-	if result.AvailableQuantity <= 0 {
-		result.Status = "Currently Out Of Stock"
-	}
-	_, updateError := db.Collection.UpdateOne(context.Background(), filter, result)
-	if updateError != nil {
+		fmt.Println("find err ")
 		return nil, err
 	}
 	deliveryTime := time.Now()
 	deliveryTime.Format("01-02-2006")
 	deliveryTime = deliveryTime.AddDate(0, 0, 10)
-	filter2 := bson.M{"id": req.UserID}
-	user := &UserHistory{}
-	userFindError := db.History.FindOne(context.Background(), filter2).Decode(user)
-	if userFindError == nil { //User is purchasing the item first time
-		user.orders = append(user.orders, *result)
-	}
+	err = UserService.SaveOrder(userID, result.ID, result.Description, int(result.Price))
 	return &itemspb.BuyItemResponse{
 		ExceptedDateOfDilvery: deliveryTime.String(),
 		Title:                 result.Title,

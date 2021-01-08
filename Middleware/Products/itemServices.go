@@ -1,7 +1,8 @@
-package services
+package product
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
@@ -30,7 +31,7 @@ func (item *itemServicesStruct) GetItemDetails(itemID string) (*Item, *errors.Re
 	if len(itemID) < 0 {
 		return nil, errors.NewBadRequest("please Enter the valid Item ID")
 	}
-	res := restClient.Get("/itemID")
+	res := restClient.Get(fmt.Sprintf("/items/%s", itemID))
 	if res.Response == nil || res == nil {
 		return nil, errors.NewInternalServerError("Error while fetching the item details")
 	}

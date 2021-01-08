@@ -15,7 +15,7 @@ type Order struct {
 }
 
 type productDetail struct {
-	itemID int
+	itemID string
 	title  string
 	price  int
 }
@@ -30,8 +30,8 @@ type userCartServices struct {
 type userCartInerface interface {
 	ViewCart(int) ([]productDetail, error)
 	Checkout(int)
-	AddToCart(int, int, int, string) error
-	RemoveFromCart(int, int) error
+	AddToCart(string, int, int, string) error
+	RemoveFromCart(int, string) error
 }
 
 func (u *userCartServices) ViewCart(userID int) ([]productDetail, error) {
@@ -48,7 +48,7 @@ func (u *userCartServices) ViewCart(userID int) ([]productDetail, error) {
 func (u *userCartServices) Checkout(userID int) {
 
 }
-func (u *userCartServices) AddToCart(userID, itemID, price int, name string) error {
+func (u *userCartServices) AddToCart(itemID string, userID, price int, name string) error {
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
 	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)
@@ -70,7 +70,7 @@ func (u *userCartServices) AddToCart(userID, itemID, price int, name string) err
 
 }
 
-func (u *userCartServices) RemoveFromCart(userID, itemID int) error {
+func (u *userCartServices) RemoveFromCart(userID int, itemID string) error {
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
 	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)

@@ -19,6 +19,14 @@ type PrivateUser struct {
 	DateCreated string `json:"date_created"`
 }
 
+//ReturnAddress : To return the address of the user
+type ReturnAddress struct {
+	Address string `json:"address"`
+	State   string `json:"state"`
+	Country string `json:"country"`
+	Phone   string `json:"phone"`
+}
+
 //MarshallUser : to Marshal the slice of users
 func (user Users) MarshallUser(isPublic bool) []interface{} {
 	result := make([]interface{}, len(user))

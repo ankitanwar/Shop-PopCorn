@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 )
@@ -116,6 +118,7 @@ func (u *userServices) GetAddress(userID int) (*users.Address, *errors.RestError
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("The value of address is ", address)
 	return add, nil
 }
 

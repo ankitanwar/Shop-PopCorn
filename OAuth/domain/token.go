@@ -36,8 +36,8 @@ func ValidateAccessToken(token AccessToken) *errors.RestError {
 
 }
 
-//GetNewAccessToken : To get the new access token
-func (token *AccessToken) GetNewAccessToken() {
+//CreateExperationTime : To get the new access token
+func (token *AccessToken) CreateExperationTime() {
 	token.Expires = time.Now().UTC().Add(experationTime * time.Hour).Unix()
 }
 
@@ -46,7 +46,17 @@ func (token *AccessToken) IsExpired() bool {
 	return time.Unix(token.Expires, 0).Before(time.Now().UTC())
 }
 
-//GenerateAccessToken : TO generate the new access token
-func (token *AccessToken) GenerateAccessToken() {
+//CreateAccessToken : TO generate the new access token
+func (token *AccessToken) CreateAccessToken() {
 	token.Token = cryptos.GetMd5(fmt.Sprintf("at-%d-%d-ran", token.UserID, token.Expires))
+}
+
+//UpdateAccessToken : TO generate the new access token
+func (token *AccessToken) UpdateAccessToken() string {
+	return cryptos.GetMd5(fmt.Sprintf("at-%d-%d-ran", token.UserID, token.Expires))
+}
+
+//UpdateExperationTime : To get the new access token
+func (token *AccessToken) UpdateExperationTime() int64 {
+	return time.Now().UTC().Add(experationTime * time.Hour).Unix()
 }

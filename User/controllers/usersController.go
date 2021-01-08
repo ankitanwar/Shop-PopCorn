@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	bookoauth "github.com/ankitanwar/bookStore-OAuth/oAuth"
+	product "github.com/ankitanwar/e-Commerce/Middleware/Products"
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 	"github.com/ankitanwar/e-Commerce/User/services"
@@ -157,10 +159,16 @@ func AddToCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	itemID := 0
-	price := 100
-	itemTitle := "testing"
-	addError := services.UserCart.AddToCart(userID, itemID, price, itemTitle)
+	itemID := c.Param("itemID")
+	productDetail, err := product.ItemSerivce.GetItemDetails(itemID)
+	if productDetail.AvailableQuantity <= 0 {
+		c.JSON(http.StatusBadRequest, "Product Out Of Stock")
+		return
+	}
+	if err != nil {
+		c.JSON(err.Status, err)
+	}
+	addError := services.UserCart.AddToCart(itemID, userID, productDetail.Price, productDetail.Title)
 	if addError != nil {
 		c.JSON(http.StatusInternalServerError, addError)
 		return
@@ -181,7 +189,7 @@ func DeleteFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	itemID := 0
+	itemID := c.Param("itemID")
 	delError := services.UserCart.RemoveFromCart(userID, itemID)
 	if delError != nil {
 		c.JSON(http.StatusInternalServerError, delError)
@@ -203,6 +211,7 @@ func GetAddress(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
+	fmt.Println("The value of userID is ", userID)
 	address, err := services.UserServices.GetAddress(userID)
 	if err != nil {
 		c.JSON(err.Status, err)

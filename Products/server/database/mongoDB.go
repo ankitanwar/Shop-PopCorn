@@ -16,9 +16,8 @@ var (
 
 	//Collection :- grpc Collection Database
 	Collection *mongo.Collection
-
-	//History : To connect to client Order History
-	History *mongo.Collection
+	//Sales :- mogno pointer to the sales database
+	Sales *mongo.Collection
 )
 
 func init() {
@@ -35,6 +34,6 @@ func init() {
 		log.Fatalln("Error while ping")
 		panic(err)
 	}
-	Collection = Client.Database("grpc").Collection("Items")
-	Collection = Client.Database("grpc").Collection("History")
+	Collection = Client.Database("Product").Collection("items")
+	Sales = Client.Database("User").Collection("Sales")
 }

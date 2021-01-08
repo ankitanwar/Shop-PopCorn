@@ -1,9 +1,58 @@
 package items
 
-import itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+import (
+	"context"
+	"fmt"
+
+	"github.com/ankitanwar/GoAPIUtils/errors"
+	"github.com/ankitanwar/e-Commerce/Middleware/user"
+	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+	db "github.com/ankitanwar/e-Commerce/Products/server/database"
+)
+
+var (
+	//UserService : Services available for user struct
+	UserService userInterface = &userStruct{}
+)
+
+type userStruct struct{}
+
+type userInterface interface {
+	SaveOrder(string, string, string, int) error
+}
+
+type sales struct {
+	userID      string
+	productID   string
+	description string
+	price       int
+}
 
 //UserHistory : To keep track of all the items the user has ordered
 type UserHistory struct {
 	UserID int            `bson:"userID"`
 	orders []itemspb.Item `bson:"orders"`
+}
+
+func getAddress(userID string) (*user.Address, *errors.RestError) {
+	add, err := user.GetUserAddress.GetAddress(userID)
+	if err != nil {
+		return nil, err
+	}
+	return add, nil
+}
+
+func (u *userStruct) SaveOrder(userID, productID, description string, price int) error {
+	s := &sales{}
+	s.userID = userID
+	s.productID = productID
+	s.description = description
+	s.price = price
+	fmt.Println("The value of s is ", s)
+	_, err := db.Sales.InsertOne(context.Background(), s)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }

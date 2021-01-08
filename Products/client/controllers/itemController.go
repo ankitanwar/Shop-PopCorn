@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
+	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
 	"github.com/ankitanwar/e-Commerce/Products/server/domian/items"
-	oauth "github.com/ankitanwar/e-Commerce/interactWithOAuth/oAuth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +20,7 @@ type itemControllerInterface interface {
 	Create(c *gin.Context)
 	Get(c *gin.Context)
 	Delete(c *gin.Context)
+	Buy(c *gin.Context)
 }
 type itemControllerStruct struct {
 }
@@ -35,7 +36,7 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	itemRequest.Seller = int64(oauth.GetClientID(c.Request))
+	itemRequest.Seller = oauth.GetCallerID(c.Request)
 	result, createErr := items.Services.Create(context.Background(), &itemspb.CreateItemRequest{Item: itemRequest})
 	if createErr != nil {
 		c.JSON(http.StatusInternalServerError, createErr)
@@ -50,7 +51,7 @@ func (i *itemControllerStruct) Buy(c *gin.Context) {
 		return
 	}
 	itemID := c.Param("itemsID")
-	userID := int64(oauth.GetClientID(c.Request))
+	userID := oauth.GetCallerID(c.Request)
 	buyRequest := &itemspb.BuyItemRequest{ItemID: itemID, UserID: userID}
 	item, err := items.Services.Buy(context.Background(), buyRequest)
 	if err != nil {

@@ -17,7 +17,7 @@ import (
 //Item : Struct it contains all the value item has
 type Item struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty"`
-	Seller            int64              `bson:"seller"`
+	Seller            string             `bson:"seller"`
 	Title             string             `bson:"title"`
 	Description       string             `bson:"description"`
 	Price             int64              `bson:"price"`

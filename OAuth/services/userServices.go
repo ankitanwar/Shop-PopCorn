@@ -33,6 +33,8 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 		if err != nil {
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
+	} else {
+		return nil, errors.NewBadRequest("Unable to find the user")
 	}
 	token := &domain.AccessToken{}
 	filter := bson.M{"user_id": user.UserID}
@@ -41,8 +43,8 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 		if findErr.Error() == NotFound {
 			token.UserID = user.UserID
 			token.Email = user.Email
-			token.GetNewAccessToken()
-			token.GenerateAccessToken()
+			token.CreateAccessToken()
+			token.CreateExperationTime()
 			_, err := mongo.Collection.InsertOne(context.Background(), token)
 			if err != nil {
 				return nil, errors.NewInternalServerError("Error while creatubg the access token")
@@ -51,12 +53,17 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 		}
 		return nil, errors.NewInternalServerError("Cannot find the user")
 	}
-	token.GetNewAccessToken()
-	token.GenerateAccessToken()
-	_, updateErr := mongo.Collection.UpdateOne(context.Background(), filter, token)
+	newExp := token.UpdateExperationTime()
+	newTok := token.UpdateAccessToken()
+	update := bson.D{
+		{"$set", bson.D{{"access_token", newTok}, {"expires", newExp}}},
+	}
+	_, updateErr := mongo.Collection.UpdateOne(context.Background(), filter, update)
 	if updateErr != nil {
 		return nil, errors.NewInternalServerError(updateErr.Error())
 	}
+	token.Expires = newExp
+	token.Token = newTok
 	return token, nil
 
 }
