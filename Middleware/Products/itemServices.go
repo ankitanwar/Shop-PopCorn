@@ -17,7 +17,7 @@ type itemServicesStruct struct {
 }
 
 type itemServiceInterface interface {
-	GetItemDetails(string) (*Item, *errors.RestError)
+	GetItemDetails(string) (*ItemValue, *errors.RestError)
 }
 
 var (
@@ -27,7 +27,7 @@ var (
 	}
 )
 
-func (item *itemServicesStruct) GetItemDetails(itemID string) (*Item, *errors.RestError) {
+func (item *itemServicesStruct) GetItemDetails(itemID string) (*ItemValue, *errors.RestError) {
 	if len(itemID) < 0 {
 		return nil, errors.NewBadRequest("please Enter the valid Item ID")
 	}
@@ -41,7 +41,12 @@ func (item *itemServicesStruct) GetItemDetails(itemID string) (*Item, *errors.Re
 		if err != nil {
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
-		return product, nil
+		r := &ItemValue{}
+		r.AvailableQuantity = product.Item.AvailableQuantity
+		r.Price = product.Item.Price
+		r.Status = product.Item.Status
+		r.Title = product.Item.Title
+		return r, nil
 	}
 	return nil, errors.NewInternalServerError("Error while getting the items details")
 }

@@ -3,9 +3,15 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	mongo "github.com/ankitanwar/e-Commerce/User/databasource/mongoUserCart"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+const (
+	//NotFound : If the id is not present in the database
+	NotFound = "mongo: no documents in result"
 )
 
 //Order : Details of the orders
@@ -15,9 +21,9 @@ type Order struct {
 }
 
 type productDetail struct {
-	itemID string
-	title  string
-	price  int
+	itemID string `bson:"itemID"`
+	title  string `bson:"title"`
+	price  int    `bson:"price"`
 }
 
 var (
@@ -29,7 +35,6 @@ type userCartServices struct {
 }
 type userCartInerface interface {
 	ViewCart(int) ([]productDetail, error)
-	Checkout(int)
 	AddToCart(string, int, int, string) error
 	RemoveFromCart(int, string) error
 }
@@ -45,25 +50,28 @@ func (u *userCartServices) ViewCart(userID int) ([]productDetail, error) {
 
 }
 
-func (u *userCartServices) Checkout(userID int) {
-
-}
 func (u *userCartServices) AddToCart(itemID string, userID, price int, name string) error {
+	fmt.Println("Inside function", userID, itemID, price, name)
 	filter := bson.M{"user_id": userID}
 	orders := &Order{}
 	err := mongo.Collection.FindOne(context.Background(), filter).Decode(orders)
 	if err != nil {
+		if err.Error() == NotFound {
+			orders.userID = userID
+			t := productDetail{
+				itemID: itemID,
+				title:  name,
+				price:  price,
+			}
+			orders.products = append(orders.products, t)
+			fmt.Println("The value of order is ", orders)
+			_, err := mongo.Collection.InsertOne(context.Background(), orders)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
 		return err
-	}
-	t := productDetail{
-		itemID: itemID,
-		title:  name,
-		price:  price,
-	}
-	orders.products = append(orders.products, t)
-	_, updateError := mongo.Collection.UpdateOne(context.Background(), filter, orders)
-	if updateError != nil {
-		return updateError
 	}
 
 	return nil

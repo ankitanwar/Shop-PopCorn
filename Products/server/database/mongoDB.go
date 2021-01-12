@@ -35,5 +35,5 @@ func init() {
 		panic(err)
 	}
 	Collection = Client.Database("Product").Collection("items")
-	Sales = Client.Database("User").Collection("Sales")
+	Sales = Client.Database("Users").Collection("Sales")
 }

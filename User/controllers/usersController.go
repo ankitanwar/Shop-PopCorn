@@ -160,14 +160,12 @@ func AddToCart(c *gin.Context) {
 		return
 	}
 	itemID := c.Param("itemID")
+	fmt.Println("The value of item id is ", itemID)
 	productDetail, err := product.ItemSerivce.GetItemDetails(itemID)
-	if productDetail.AvailableQuantity <= 0 {
-		c.JSON(http.StatusBadRequest, "Product Out Of Stock")
-		return
-	}
 	if err != nil {
 		c.JSON(err.Status, err)
 	}
+	fmt.Println("the value of product details is ", productDetail)
 	addError := services.UserCart.AddToCart(itemID, userID, productDetail.Price, productDetail.Title)
 	if addError != nil {
 		c.JSON(http.StatusInternalServerError, addError)

@@ -121,7 +121,7 @@ func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*item
 	deliveryTime := time.Now()
 	deliveryTime.Format("01-02-2006")
 	deliveryTime = deliveryTime.AddDate(0, 0, 10)
-	err = UserService.SaveOrder(userID, result.ID, result.Description, int(result.Price))
+	err = UserService.SaveOrder(userID, itemID, result.Description, int(result.Price))
 	return &itemspb.BuyItemResponse{
 		ExceptedDateOfDilvery: deliveryTime.String(),
 		Title:                 result.Title,

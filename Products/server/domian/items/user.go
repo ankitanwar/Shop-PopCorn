@@ -22,10 +22,10 @@ type userInterface interface {
 }
 
 type sales struct {
-	userID      string
-	productID   string
-	description string
-	price       int
+	UserID      string `bson:"userID"`
+	ProductID   string `bson:"productID"`
+	Description string `bson:description`
+	Price       int    `bson:"price"`
 }
 
 //UserHistory : To keep track of all the items the user has ordered
@@ -44,10 +44,10 @@ func getAddress(userID string) (*user.Address, *errors.RestError) {
 
 func (u *userStruct) SaveOrder(userID, productID, description string, price int) error {
 	s := &sales{}
-	s.userID = userID
-	s.productID = productID
-	s.description = description
-	s.price = price
+	s.UserID = userID
+	s.ProductID = productID
+	s.Description = description
+	s.Price = price
 	fmt.Println("The value of s is ", s)
 	_, err := db.Sales.InsertOne(context.Background(), s)
 	if err != nil {
