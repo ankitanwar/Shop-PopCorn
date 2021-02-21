@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	bookoauth "github.com/ankitanwar/bookStore-OAuth/oAuth"
 	product "github.com/ankitanwar/e-Commerce/Middleware/Products"
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
@@ -56,7 +55,7 @@ func GetUser(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, user.MarshallUser(bookoauth.IsPublic(c.Request)))
+	c.JSON(http.StatusOK, user.MarshallUser(oauth.IsPublic(c.Request)))
 
 }
 
@@ -82,7 +81,7 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, updatedUser.MarshallUser(bookoauth.IsPublic(c.Request)))
+	c.JSON(http.StatusOK, updatedUser.MarshallUser(oauth.IsPublic(c.Request)))
 }
 
 //DeleteUser :To Delete the user with given id
@@ -107,7 +106,7 @@ func FindByStatus(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, users.MarshallUser(bookoauth.IsPublic(c.Request)))
+	c.JSON(http.StatusOK, users.MarshallUser(oauth.IsPublic(c.Request)))
 
 }
 
@@ -123,7 +122,7 @@ func Login(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, user.MarshallUser(bookoauth.IsPublic(c.Request)))
+	c.JSON(http.StatusOK, user.MarshallUser(oauth.IsPublic(c.Request)))
 
 }
 
