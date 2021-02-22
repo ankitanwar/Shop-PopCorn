@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 )
@@ -21,8 +19,8 @@ type userServicesInterface interface {
 	DeleteUser(int) *errors.RestError
 	FindByStatus(string) (users.Users, *errors.RestError)
 	LoginUser(request users.LoginRequest) (*users.User, *errors.RestError)
-	GetAddress(int) (*users.Address, *errors.RestError)
-	AddAddress(int, users.UserAddress) (*users.Address, *errors.RestError)
+	// GetAddress(int) (*users.Address, *errors.RestError)
+	// AddAddress(int, users.UserAddress) (*users.Address, *errors.RestError)
 }
 
 //CreateUser : To save the user in the database
@@ -112,25 +110,25 @@ func (u *userServices) LoginUser(request users.LoginRequest) (*users.User, *erro
 	return user, nil
 }
 
-func (u *userServices) GetAddress(userID int) (*users.Address, *errors.RestError) {
-	address := &users.Address{}
-	add, err := address.GetUserAddress(userID)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("The value of address is ", address)
-	return add, nil
-}
+// func (u *userServices) GetAddress(userID int) (*users.Address, *errors.RestError) {
+// 	address := &users.Address{}
+// 	add, err := address.GetUserAddress(userID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	fmt.Println("The value of address is ", address)
+// 	return add, nil
+// }
 
-func (u *userServices) AddAddress(userID int, address users.UserAddress) (*users.Address, *errors.RestError) {
-	err := address.ValidateAddress()
-	if err != nil {
-		return nil, err
-	}
-	res, addErr := address.AddAddress(userID)
-	if addErr != nil {
-		return nil, addErr
-	}
-	return res, nil
+// func (u *userServices) AddAddress(userID int, address users.UserAddress) (*users.Address, *errors.RestError) {
+// 	err := address.ValidateAddress()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	res, addErr := address.AddAddress(userID)
+// 	if addErr != nil {
+// 		return nil, addErr
+// 	}
+// 	return res, nil
 
-}
+// }

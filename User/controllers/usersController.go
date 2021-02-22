@@ -1,12 +1,10 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	product "github.com/ankitanwar/e-Commerce/Middleware/Products"
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	"github.com/ankitanwar/e-Commerce/User/domain/users"
 	"github.com/ankitanwar/e-Commerce/User/services"
@@ -126,119 +124,49 @@ func Login(c *gin.Context) {
 
 }
 
-//GetCart : To get the items in the cart
-func GetCart(c *gin.Context) {
-	err := oauth.AuthenticateRequest(c.Request)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	userID, err := getUserid(c.Param("userID"))
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	products, viewError := services.UserCart.ViewCart(userID)
-	if viewError != nil {
-		c.JSON(http.StatusInternalServerError, viewError)
-		return
-	}
-	c.JSON(http.StatusAccepted, products)
-}
+// //GetAddress : To Get the address of the given user
+// func GetAddress(c *gin.Context) {
+// 	err := oauth.AuthenticateRequest(c.Request)
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	userID, err := getUserid(c.Param("userID"))
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	fmt.Println("The value of userID is ", userID)
+// 	address, err := services.UserServices.GetAddress(userID)
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	c.JSON(http.StatusAccepted, address)
+// }
 
-//AddToCart : Adding item to the cart
-func AddToCart(c *gin.Context) {
-	err := oauth.AuthenticateRequest(c.Request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-	userID, err := getUserid(c.Param("userID"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-	itemID := c.Param("itemID")
-	fmt.Println("The value of item id is ", itemID)
-	productDetail, err := product.ItemSerivce.GetItemDetails(itemID)
-	if err != nil {
-		c.JSON(err.Status, err)
-	}
-	fmt.Println("the value of product details is ", productDetail)
-	addError := services.UserCart.AddToCart(itemID, userID, productDetail.Price, productDetail.Title)
-	if addError != nil {
-		c.JSON(http.StatusInternalServerError, addError)
-		return
-	}
-	c.JSON(http.StatusAccepted, "Item Has been added Successfully")
-
-}
-
-//DeleteFromCart : To delete the item from the user cart
-func DeleteFromCart(c *gin.Context) {
-	err := oauth.AuthenticateRequest(c.Request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-	userID, err := getUserid(c.Param("userID"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-	itemID := c.Param("itemID")
-	delError := services.UserCart.RemoveFromCart(userID, itemID)
-	if delError != nil {
-		c.JSON(http.StatusInternalServerError, delError)
-		return
-	}
-	c.JSON(http.StatusAccepted, "Item Has been deleted Successfully")
-
-}
-
-//GetAddress : To Get the address of the given user
-func GetAddress(c *gin.Context) {
-	err := oauth.AuthenticateRequest(c.Request)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	userID, err := getUserid(c.Param("userID"))
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	fmt.Println("The value of userID is ", userID)
-	address, err := services.UserServices.GetAddress(userID)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	c.JSON(http.StatusAccepted, address)
-}
-
-//AddAddress : To Get the address of the given user
-func AddAddress(c *gin.Context) {
-	err := oauth.AuthenticateRequest(c.Request)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	address := &users.UserAddress{}
-	bindErr := c.ShouldBindJSON(address)
-	if bindErr != nil {
-		c.JSON(http.StatusBadRequest, "Error while binding to the json")
-		return
-	}
-	userID, err := getUserid(c.Param("userID"))
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	res, err := services.UserServices.AddAddress(userID, *address)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	c.JSON(http.StatusAccepted, res)
-}
+// //AddAddress : To Get the address of the given user
+// func AddAddress(c *gin.Context) {
+// 	err := oauth.AuthenticateRequest(c.Request)
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	address := &users.UserAddress{}
+// 	bindErr := c.ShouldBindJSON(address)
+// 	if bindErr != nil {
+// 		c.JSON(http.StatusBadRequest, "Error while binding to the json")
+// 		return
+// 	}
+// 	userID, err := getUserid(c.Param("userID"))
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	res, err := services.UserServices.AddAddress(userID, *address)
+// 	if err != nil {
+// 		c.JSON(err.Status, err)
+// 		return
+// 	}
+// 	c.JSON(http.StatusAccepted, res)
+// }
