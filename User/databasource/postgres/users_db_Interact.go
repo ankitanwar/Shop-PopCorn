@@ -1,4 +1,4 @@
-package users
+package userdb
 
 import (
 	"fmt"
@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	userdb "github.com/ankitanwar/e-Commerce/User/databasource/postgres"
+	"github.com/ankitanwar/e-Commerce/User/domain/users"
+	User "github.com/ankitanwar/e-Commerce/User/domain/users"
 	cryptos "github.com/ankitanwar/e-Commerce/User/utils/cryptoUtils"
 )
 
@@ -22,8 +23,8 @@ const (
 )
 
 //Save : To save the user into the database
-func (user *User) Save() *errors.RestError {
-	stmt, err := userdb.Client.Prepare(insertUser)
+func Save(user *User.User) *errors.RestError {
+	stmt, err := Client.Prepare(insertUser)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
@@ -47,31 +48,32 @@ func (user *User) Save() *errors.RestError {
 		return errors.NewInternalServerError(err.Error())
 	}
 
-	user.ID = int(userid)
+	user.ID = fmt.Sprint(userid)
 	return nil
 
 }
 
 //Get : To get the user from the database by given id
-func (user *User) Get() *errors.RestError {
-	stmt, err := userdb.Client.Prepare(getUser)
+func Get(userID string) (*users.User, *errors.RestError) {
+	user := &User.User{}
+	stmt, err := Client.Prepare(getUser)
 	if err != nil {
-		return errors.NewInternalServerError(err.Error())
+		return nil, errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
-	result := stmt.QueryRow(user.ID) //to query the single row
+	result := stmt.QueryRow(userID) //to query the single row
 	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.PhoneNo); err != nil {
 		if strings.Contains(err.Error(), errNoRows) {
-			return errors.NewNotFound(fmt.Sprintf("No user with exist with id %v ", user.ID))
+			return nil, errors.NewNotFound(fmt.Sprintf("No user with exist with id %v ", user.ID))
 		}
-		return errors.NewInternalServerError(err.Error())
+		return nil, errors.NewInternalServerError(err.Error())
 	}
-	return nil
+	return user, nil
 }
 
 //Update : To  update the value of the existing users
-func (user *User) Update() *errors.RestError {
-	stmt, err := userdb.Client.Prepare(updateUser)
+func Update(user *users.User) *errors.RestError {
+	stmt, err := Client.Prepare(updateUser)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
@@ -85,13 +87,13 @@ func (user *User) Update() *errors.RestError {
 }
 
 //Delete : To delete the user from the database
-func (user *User) Delete() *errors.RestError {
-	stmt, err := userdb.Client.Prepare(deleteUser)
+func Delete(userID string) *errors.RestError {
+	stmt, err := Client.Prepare(deleteUser)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(user.ID)
+	_, err = stmt.Exec(userID)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
@@ -99,8 +101,8 @@ func (user *User) Delete() *errors.RestError {
 }
 
 //FindByStatus : To find all the users according to their status
-func (user *User) FindByStatus(status string) ([]User, *errors.RestError) {
-	stmt, err := userdb.Client.Prepare(getUserByStatus)
+func FindByStatus(status string) ([]User.User, *errors.RestError) {
+	stmt, err := Client.Prepare(getUserByStatus)
 	if err != nil {
 		return nil, errors.NewInternalServerError(err.Error())
 	}
@@ -109,9 +111,9 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RestError) {
 		return nil, errors.NewInternalServerError(err.Error())
 	}
 	defer rows.Close()
-	result := []User{}
+	result := []User.User{}
 	for rows.Next() {
-		var user User
+		var user User.User
 		rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated)
 		result = append(result, user)
 	}
@@ -124,9 +126,9 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RestError) {
 }
 
 // GetUserByEmailAndPassword : To reterive the user by email id and password
-func (user *User) GetUserByEmailAndPassword() *errors.RestError {
+func GetUserByEmailAndPassword(user *users.User) *errors.RestError {
 	user.Password = cryptos.GetMd5(user.Password)
-	stmt, err := userdb.Client.Prepare(getUserByEmailAndPassword)
+	stmt, err := Client.Prepare(getUserByEmailAndPassword)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
@@ -141,44 +143,3 @@ func (user *User) GetUserByEmailAndPassword() *errors.RestError {
 	return nil
 
 }
-
-// //GetUserAddress : To get the user address by the given id
-// func (address *Address) GetUserAddress(id int) (*Address, *errors.RestError) {
-// 	filter := bson.M{"user_id": id}
-// 	err := mongo.Address.FindOne(context.Background(), filter).Decode(address)
-// 	if err != nil {
-// 		return nil, errors.NewInternalServerError("Error While fetching the address")
-// 	}
-// 	return address, nil
-// }
-
-// //AddAddress : To add the address of the user into the database
-// func (address *UserAddress) AddAddress(userID int) (*Address, *errors.RestError) {
-// 	filter := bson.M{"user_id": userID}
-// 	add := &Address{}
-// 	err := mongo.Address.FindOne(context.Background(), filter).Decode(add)
-// 	fmt.Println("The value of address is ", address)
-// 	if err != nil {
-// 		if err.Error() == mongoNotFound {
-// 			add.UserID = userID
-// 			add.List = append(add.List, *address)
-// 			_, err := mongo.Address.InsertOne(context.Background(), add)
-// 			if err != nil {
-// 				return nil, errors.NewInternalServerError("Error while saving the address")
-// 			}
-// 			return add, nil
-
-// 		}
-// 		return nil, errors.NewInternalServerError("Some Internal Server Error has been occured")
-// 	}
-// 	add.List = append(add.List, *address)
-// 	update := bson.D{
-// 		{"$set", bson.D{{"list", add.List}}},
-// 	}
-// 	_, err = mongo.Address.UpdateOne(context.Background(), filter, update)
-// 	if err != nil {
-// 		return nil, errors.NewInternalServerError("Error while saving the database")
-// 	}
-// 	return add, nil
-
-// }

@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
@@ -11,11 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getUserid(userIDParam string) (int, *errors.RestError) {
-	userID, userErr := strconv.Atoi(userIDParam)
-	if userErr != nil {
-		err := errors.NewBadRequest("Enter the valid used id")
-		return 0, err
+func getUserid(request *http.Request) (string, *errors.RestError) {
+	userID := request.Header.Get("X-Caller-Id")
+	if userID == "" {
+		return "", errors.NewBadRequest("Invalid User ID")
 	}
 	return userID, nil
 }
@@ -43,7 +42,7 @@ func GetUser(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	userid, userErr := getUserid(c.Param("user_id"))
+	userid, userErr := getUserid(c.Request)
 	if userErr != nil {
 		c.JSON(userErr.Status, userErr)
 		return
@@ -60,7 +59,7 @@ func GetUser(c *gin.Context) {
 //UpdateUser :To Update the value of particaular user
 func UpdateUser(c *gin.Context) {
 	var user = users.User{}
-	userid, userErr := getUserid(c.Param("user_id"))
+	userid, userErr := getUserid(c.Request)
 	if userErr != nil {
 		c.JSON(userErr.Status, userErr)
 		return
@@ -84,7 +83,7 @@ func UpdateUser(c *gin.Context) {
 
 //DeleteUser :To Delete the user with given id
 func DeleteUser(c *gin.Context) {
-	userid, userErr := getUserid(c.Param("user_id"))
+	userid, userErr := getUserid(c.Request)
 	if userErr != nil {
 		c.JSON(userErr.Status, userErr)
 		return
@@ -124,49 +123,50 @@ func Login(c *gin.Context) {
 
 }
 
-// //GetAddress : To Get the address of the given user
-// func GetAddress(c *gin.Context) {
-// 	err := oauth.AuthenticateRequest(c.Request)
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	userID, err := getUserid(c.Param("userID"))
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	fmt.Println("The value of userID is ", userID)
-// 	address, err := services.UserServices.GetAddress(userID)
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	c.JSON(http.StatusAccepted, address)
-// }
+//GetAddress : To Get the address of the given user
+func GetAddress(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	userID, err := getUserid(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	fmt.Println("The value of userID is ", userID)
+	address, err := services.UserServices.GetAddress(userID)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	c.JSON(http.StatusAccepted, address)
+}
 
-// //AddAddress : To Get the address of the given user
-// func AddAddress(c *gin.Context) {
-// 	err := oauth.AuthenticateRequest(c.Request)
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	address := &users.UserAddress{}
-// 	bindErr := c.ShouldBindJSON(address)
-// 	if bindErr != nil {
-// 		c.JSON(http.StatusBadRequest, "Error while binding to the json")
-// 		return
-// 	}
-// 	userID, err := getUserid(c.Param("userID"))
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	res, err := services.UserServices.AddAddress(userID, *address)
-// 	if err != nil {
-// 		c.JSON(err.Status, err)
-// 		return
-// 	}
-// 	c.JSON(http.StatusAccepted, res)
-// }
+//AddAddress : To Get the address of the given user
+func AddAddress(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	address := &users.UserAddress{}
+	bindErr := c.ShouldBindJSON(address)
+	fmt.Println("The value of bindErr is", bindErr)
+	if bindErr != nil {
+		c.JSON(http.StatusBadRequest, "Error while binding to the json")
+		return
+	}
+	userID, err := getUserid(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	err = services.UserServices.AddAddress(userID, address)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	c.JSON(http.StatusAccepted, "Address has been added successfully")
+}

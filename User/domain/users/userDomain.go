@@ -8,7 +8,7 @@ import (
 
 //User : User and its values
 type User struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
@@ -20,8 +20,8 @@ type User struct {
 
 //Address : Address of the given user
 type Address struct {
-	UserID int           `bson:"user_id"`
-	List   []UserAddress `bson:"list"`
+	UserID string        `bson:"_id"`
+	List   []UserAddress `bson:"addresses"`
 }
 
 //UserAddress : Address field for the user
