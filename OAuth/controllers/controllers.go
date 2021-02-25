@@ -2,12 +2,12 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
-
 	"github.com/ankitanwar/e-Commerce/Oauth/domain"
 	"github.com/ankitanwar/e-Commerce/Oauth/services"
 	"github.com/gin-gonic/gin"
+	"fmt"
 )
+
 
 //CreateAccessToken : To get the new access token
 func CreateAccessToken(c *gin.Context) {
@@ -28,14 +28,12 @@ func CreateAccessToken(c *gin.Context) {
 
 //ValidateAccessToken : To validate the access token
 func ValidateAccessToken(c *gin.Context) {
-	userID := c.Param("userID")
-	id, err := strconv.Atoi(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
+	userID := c.Request.Header.Get("X-Caller-Id")
+	if userID==""{
+		c.JSON(http.StatusBadRequest,"Invalid userID")
 	}
-	token := c.Param("access_token")
-	valid, validErr := services.ValidateAccessToken(id, token)
+	token := c.Request.Header.Get("access_token")
+	valid, validErr := services.ValidateAccessToken(userID, token)
 	if validErr != nil {
 		c.JSON(validErr.Status, validErr)
 		return

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	domin "github.com/ankitanwar/e-Commerce/Cart/domain"
+	domain "github.com/ankitanwar/e-Commerce/Cart/domain"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -14,8 +14,8 @@ var (
 	NotFound = "mongo: no documents in result"
 )
 
-func createNew(userID string, item domin.Item) error {
-	t := &domin.User{}
+func createNew(userID string, item domain.Item) error {
+	t := &domain.User{}
 	t.UserID = userID
 	t.Items = append(t.Items, item)
 	res, err := collection.InsertOne(context.Background(), t)
@@ -27,8 +27,8 @@ func createNew(userID string, item domin.Item) error {
 }
 
 //AddToCart : To add the item into the cart
-func AddToCart(userID string, item domin.Item) *errors.RestError {
-	user := &domin.User{}
+func AddToCart(userID string, item domain.Item) *errors.RestError {
+	user := &domain.User{}
 	filter := bson.M{"_id": userID}
 	err := collection.FindOne(context.Background(), filter).Decode(user)
 	if err != nil {
@@ -59,4 +59,26 @@ func RemoveFromCart(userID, itemID string) error {
 		return err
 	}
 	return nil
+}
+
+//Checkout : To checkout all the items in the cart
+func Checkout(userID string) (*domain.User, error) {
+	filter := bson.M{"_id": userID}
+	user := &domain.User{}
+	err := collection.FindOne(context.Background(), filter).Decode(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
+//ViewCart : To view All the items in the cart
+func ViewCart(userID string) (*domain.User, error) {
+	user := &domain.User{}
+	filter := bson.M{"_id": userID}
+	err := collection.FindOne(context.Background(), filter).Decode(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

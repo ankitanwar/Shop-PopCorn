@@ -14,19 +14,20 @@ import (
 const (
 	headerXPublic   = "X-Public"
 	headerXCallerID = "X-Caller-Id"
-
-	paramAccessToken = "access_token"
 )
 
 var (
-	oauthRestClient = rest.RequestBuilder{
+	paramAccessToken = "access_token"
+	headers          = make(http.Header)
+	oauthRestClient  = rest.RequestBuilder{
 		BaseURL: "http://localhost:8090",
 		Timeout: 200 * time.Millisecond,
+		Headers: headers,
 	}
 )
 
 type accessToken struct {
-	UserID int64  `json:"user_id"`
+	UserID string `json:"user_id"`
 	Email  string `json:"email"`
 }
 
@@ -58,23 +59,24 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 		return errors.NewBadRequest("InValid Access Token")
 	}
 	userID := GetCallerID(request)
-	fmt.Println("The value of userId is ", userID)
 	if len(userID) <= 0 {
 		return errors.NewBadRequest("Invalid User ID")
 	}
-	at, err := getAccessToken(accessTokenID, userID)
+	_, err := getAccessToken(accessTokenID, userID)
 	if err != nil {
 		if err.Status == http.StatusNotFound {
 			return errors.NewNotFound("Token id is expired")
 		}
 		return err
 	}
-	request.Header.Add(headerXCallerID, fmt.Sprintf("%v", at.UserID))
 	return nil
 }
 
 func getAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestError) {
-	response := oauthRestClient.Get(fmt.Sprintf("/validate/%s/%s", userID, accessTokenID))
+	headers.Set(headerXCallerID, userID)
+	headers.Set(paramAccessToken, accessTokenID)
+	fmt.Println("The set value is", userID, accessTokenID)
+	response := oauthRestClient.Get("/validate")
 	if response == nil || response.Response == nil {
 		return nil, errors.NewNotFound("Not found")
 	}
@@ -86,6 +88,7 @@ func getAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestErr
 
 	var at accessToken
 	if err := json.Unmarshal(response.Bytes(), &at); err != nil {
+		fmt.Println("The value of error is", err)
 		return nil, errors.NewInternalServerError("error when trying to unmarshal access token response")
 	}
 	return &at, nil

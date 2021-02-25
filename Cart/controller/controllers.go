@@ -71,7 +71,18 @@ func RemoveFromCart(c *gin.Context) {
 
 //ViewCart : To view the cart of the particular user
 func ViewCart(c *gin.Context) {
-
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	userID := getCallerID(c.Request)
+	itemInCart, err := services.ViewCart(userID)
+	if err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	c.JSON(http.StatusAccepted, itemInCart)
+	return
 }
 
 //Checkout : To checkout all the items from the cart

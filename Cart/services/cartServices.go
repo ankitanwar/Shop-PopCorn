@@ -31,3 +31,17 @@ func RemoveFromCart(userID, itemID string) *errors.RestError {
 	}
 	return nil
 }
+
+//ViewCart : To view all the items in the cart
+func ViewCart(userID string) (*[]domain.Item, *errors.RestError) {
+	userCart, err := cartdatabase.ViewCart(userID)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Error while fetching the cart")
+	}
+	return &userCart.Items, nil
+}
+
+//Checkout : To checkout all the given items in the cart
+func Checkout(userID string) {
+	
+}

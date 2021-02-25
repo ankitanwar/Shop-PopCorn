@@ -5,7 +5,7 @@ import "github.com/ankitanwar/e-Commerce/User/controllers"
 func mapUrls() {
 	router.GET("/ping", controllers.Ping)
 	router.POST("/users", controllers.CreateUser)
-	router.GET("/users/:user_id", controllers.GetUser)
+	router.GET("/users", controllers.GetUser)
 	router.PATCH("/users", controllers.UpdateUser)
 	router.DELETE("/users", controllers.DeleteUser)
 	router.GET("/internal/users/search", controllers.FindByStatus)

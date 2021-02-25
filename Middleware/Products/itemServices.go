@@ -18,6 +18,7 @@ type itemServicesStruct struct {
 
 type itemServiceInterface interface {
 	GetItemDetails(string) (*ItemValue, *errors.RestError)
+	BuyItem(string) *errors.RestError
 }
 
 var (
@@ -27,9 +28,17 @@ var (
 	}
 )
 
-func (item *itemServicesStruct) GetItemDetails(itemID string) (*ItemValue, *errors.RestError) {
+func checkItemID(itemID string) *errors.RestError {
 	if len(itemID) < 0 {
-		return nil, errors.NewBadRequest("please Enter the valid Item ID")
+		return errors.NewBadRequest("Invalid Item ID")
+	}
+	return nil
+}
+
+func (item *itemServicesStruct) GetItemDetails(itemID string) (*ItemValue, *errors.RestError) {
+	err := checkItemID(itemID)
+	if err != nil {
+		return nil, err
 	}
 	res := restClient.Get(fmt.Sprintf("/items/%s", itemID))
 	if res.Response == nil || res == nil {
@@ -49,4 +58,16 @@ func (item *itemServicesStruct) GetItemDetails(itemID string) (*ItemValue, *erro
 		return r, nil
 	}
 	return nil, errors.NewInternalServerError("Error while getting the items details")
+}
+
+func (item *itemServicesStruct) BuyItem(itemID string) *errors.RestError {
+	err := checkItemID(itemID)
+	if err != nil {
+		return err
+	}
+	res := restClient.Post(fmt.Sprintf("/items/buy/%s", itemID), nil)
+	if res.StatusCode == 200 {
+		return nil
+	}
+	return errors.NewBadRequest("Unable to purchase items")
 }

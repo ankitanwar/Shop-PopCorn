@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"time"
-
+	"fmt"
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	mongo "github.com/ankitanwar/e-Commerce/Oauth/database"
 	"github.com/ankitanwar/e-Commerce/Oauth/domain"
@@ -20,6 +20,18 @@ var (
 	//NotFound : If the id is not present in the database
 	NotFound = "mongo: no documents in result"
 )
+func createFirstAccessToken(user *domain.User)(*domain.AccessToken,*errors.RestError){
+	token:=&domain.AccessToken{}
+	token.UserID = user.UserID
+	token.Email = user.Email
+	token.CreateAccessToken()
+	token.CreateExperationTime()
+	_, err := mongo.Collection.InsertOne(context.Background(), token)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Error while creatubg the access token")
+	}
+	return token, nil
+}
 
 //CreateAccessToken : To create the new access Token
 func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.RestError) {
@@ -31,25 +43,22 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 	if ans.StatusCode < 299 {
 		err := json.Unmarshal(ans.Bytes(), user)
 		if err != nil {
+			fmt.Println("The value of err is",err)
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
 	} else {
 		return nil, errors.NewBadRequest("Unable to find the user")
 	}
 	token := &domain.AccessToken{}
-	filter := bson.M{"user_id": user.UserID}
+	filter := bson.M{"_id": user.UserID}
 	findErr := mongo.Collection.FindOne(context.Background(), filter).Decode(token)
 	if findErr != nil {
 		if findErr.Error() == NotFound {
-			token.UserID = user.UserID
-			token.Email = user.Email
-			token.CreateAccessToken()
-			token.CreateExperationTime()
-			_, err := mongo.Collection.InsertOne(context.Background(), token)
-			if err != nil {
-				return nil, errors.NewInternalServerError("Error while creatubg the access token")
+			firstToken,err:=createFirstAccessToken(user)
+			if err!=nil{
+				return nil,err
 			}
-			return token, nil
+			return firstToken,nil
 		}
 		return nil, errors.NewInternalServerError("Cannot find the user")
 	}
@@ -69,8 +78,8 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 }
 
 //ValidateAccessToken : To validate the Access Token
-func ValidateAccessToken(id int, token string) (*domain.AccessToken, *errors.RestError) {
-	filter := bson.M{"user_id": id}
+func ValidateAccessToken(userID string, token string) (*domain.AccessToken, *errors.RestError) {
+	filter := bson.M{"_id": userID}
 	access := &domain.AccessToken{}
 	err := mongo.Collection.FindOne(context.Background(), filter).Decode(access)
 	if err != nil {

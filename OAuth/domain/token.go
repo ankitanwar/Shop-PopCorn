@@ -14,7 +14,7 @@ const (
 
 //AccessToken : Fields for accessToken
 type AccessToken struct {
-	UserID  int    `json:"user_id" bson:"user_id"`
+	UserID  string `json:"user_id" bson:"_id"`
 	Email   string `json:"email" bson:"email"`
 	Expires int64  `json:"expires" bson:"expires"`
 	Token   string `json:"access_token" bson:"access_token"`
@@ -22,7 +22,7 @@ type AccessToken struct {
 
 //ValidateAccessToken : To validate the access token
 func ValidateAccessToken(token AccessToken) *errors.RestError {
-	if token.UserID < 0 {
+	if token.UserID == "" {
 		return errors.NewBadRequest("Invalid User ID")
 	}
 	if len(token.Email) < 0 {
