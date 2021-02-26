@@ -7,7 +7,7 @@ import (
 
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
 	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
-	"github.com/ankitanwar/e-Commerce/Products/server/domian/items"
+	items "github.com/ankitanwar/e-Commerce/Products/server/services"
 	"github.com/gin-gonic/gin"
 )
 

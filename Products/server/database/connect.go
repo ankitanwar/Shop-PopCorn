@@ -15,9 +15,7 @@ var (
 	Client *mongo.Client
 
 	//Collection :- grpc Collection Database
-	Collection *mongo.Collection
-	//Sales :- mogno pointer to the sales database
-	Sales *mongo.Collection
+	collection *mongo.Collection
 )
 
 func init() {
@@ -34,6 +32,5 @@ func init() {
 		log.Fatalln("Error while ping")
 		panic(err)
 	}
-	Collection = Client.Database("Product").Collection("items")
-	Sales = Client.Database("Users").Collection("Sales")
+	collection = Client.Database("Product").Collection("items")
 }

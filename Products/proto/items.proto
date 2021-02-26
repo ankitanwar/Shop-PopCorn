@@ -2,7 +2,7 @@ syntax ="proto3";
 
 package items;
 
-option go_package = "itemspb";
+option go_package = ".;itemspb";
 
 message Item{
     string ID=1;
@@ -12,6 +12,13 @@ message Item{
     int64 Price=5;
     int64 AvailableQuantity=6;
     string Status=8;
+    int64 QuantitySold=9;
+}
+
+message ViewItem{
+    string ID=1;
+    string Title=2;
+    int64 Price=3;
 }
 message CreateItemRequest{
     Item item=1;
@@ -22,11 +29,18 @@ message CreateItemResposne{
 }
 
 message GetItemRequest{
-    string ID=2;
-
+    string ID=1;
 }
+message SearchItemRequest{
+    string name=1;
+}
+
+message SearchItemResponse{
+    ViewItem item=1;
+}
+
 message GetItemResposne{
-    Item item=1;
+    ViewItem item=1;
 }
 
 message UpdateItemRequest{
@@ -54,6 +68,13 @@ message BuyItemResponse{
     string Address=3;
     int64 Price=4;
 }
+message SellerViewRequest{
+    string ID=1;
+    string Name=2;
+}
+message SellerViewRespsonse{
+    Item view=1;
+}
 
 service ItemService{
     rpc Create(CreateItemRequest) returns (CreateItemResposne);
@@ -61,4 +82,6 @@ service ItemService{
     rpc Update(UpdateItemRequest) returns (UpdateItemResponse);
     rpc Delete(DeleteItemRequest) returns (DeleteItemResponse);
     rpc Buy(BuyItemRequest) returns (BuyItemResponse);
+    rpc SellerView(SellerViewRequest) returns (SellerViewRespsonse);
+    rpc SearchItem (SearchItemRequest) returns (stream SearchItemResponse);
 }
