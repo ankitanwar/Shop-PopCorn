@@ -7,6 +7,7 @@ import (
 
 	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
 	db "github.com/ankitanwar/e-Commerce/Products/server/database"
+	domain "github.com/ankitanwar/e-Commerce/Products/server/domian/items"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,108 +20,154 @@ var (
 type ItemService struct {
 }
 
+func getOID(id string) (*primitive.ObjectID, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	if len(oid) == 0 {
+		return nil, errors.New("Invalid oid")
+	}
+	return &oid, nil
+}
+
 //Create : To Create the item
 func (s *ItemService) Create(ctx context.Context, req *itemspb.CreateItemRequest) (*itemspb.CreateItemResposne, error) {
-	item := req.GetItem()
-	item.QuantitySold = 0
-	item.Status = "Available"
+	if len(req.Name) == 0 {
+		return nil, errors.New("Please Enter The Valid Name")
+	}
+	item := &domain.Item{
+		Seller:            req.Seller,
+		Name:              req.Name,
+		Description:       req.Description,
+		Price:             req.Price,
+		AvailableQuantity: req.AvailableQuantity,
+		SoldQuantity:      0,
+		Status:            "Available",
+	}
 	res, err := db.SaveItem(item)
 	if err != nil {
 		return nil, err
 	}
 	oid, _ := res.InsertedID.(primitive.ObjectID)
-	return &itemspb.CreateItemResposne{
-		Item: &itemspb.Item{
-			ID:                oid.Hex(),
-			Seller:            item.GetSeller(),
-			Title:             item.GetTitle(),
-			Description:       item.GetDescription(),
-			Price:             item.GetPrice(),
-			AvailableQuantity: item.GetAvailableQuantity(),
-			Status:            item.GetStatus(),
-			QuantitySold:      0,
-		},
-	}, nil
+	response := &itemspb.CreateItemResposne{
+		Id:                oid.String(),
+		Seller:            item.Seller,
+		Title:             item.Name,
+		Description:       item.Description,
+		Price:             item.Price,
+		AvailableQuantity: item.AvailableQuantity,
+		Status:            item.Status,
+		QuantitySold:      item.SoldQuantity,
+	}
+	return response, nil
 
 }
 
 //Get : To Get The Item By Particular Id
 func (s *ItemService) Get(ctx context.Context, req *itemspb.GetItemRequest) (*itemspb.GetItemResposne, error) {
-	itemID := req.GetID()
-	oid, err := primitive.ObjectIDFromHex(itemID)
+	itemID := req.ID
+	oid, err := getOID(itemID)
+	if err != nil {
+		return nil, errors.New("Invalid Item iD")
+	}
+	item, err := db.SearchByID(*oid)
 	if err != nil {
 		return nil, err
 	}
-	item, err := db.SearchByID(oid)
-	if err != nil {
-		return nil, err
+	result := &itemspb.ViewItem{
+		ID:    item.ID.String(),
+		Title: item.Name,
+		Price: item.Price,
 	}
-	response := &itemspb.GetItemResposne{}
-	response.Item = item
+	response := &itemspb.GetItemResposne{
+		Item: result,
+	}
 	return response, nil
 
 }
 
 //Update : To update the item by particular ID
 func (s *ItemService) Update(ctx context.Context, req *itemspb.UpdateItemRequest) (*itemspb.UpdateItemResponse, error) {
-	itemID := req.GetID()
-	oid, err := primitive.ObjectIDFromHex(itemID)
+	itemID := req.ItemID
+	userID := req.UserID
+	oid, err := getOID(itemID)
+	if err != nil {
+		return nil, errors.New("Invalid oid")
+	}
+	savedDetail, err := db.DetailView(*oid)
 	if err != nil {
 		return nil, err
 	}
-	updatedDetial := req.GetItem()
-	savedDetail, err := db.DetailView(oid)
-	if err != nil {
-		return nil, err
-	}
-	if savedDetail.Seller != updatedDetial.Seller {
+	if savedDetail.Seller != userID {
 		return nil, errors.New("Item Not Found")
 	}
-	if updatedDetial.Title != "" {
-		savedDetail.Title = updatedDetial.Title
+	if req.Name != "" {
+		savedDetail.Name = req.Name
 	}
-	if updatedDetial.Description != "" {
-		savedDetail.Description = updatedDetial.Description
+	if req.Description != "" {
+		savedDetail.Description = req.Description
 	}
-	if updatedDetial.AvailableQuantity != 0 {
-		savedDetail.AvailableQuantity += updatedDetial.AvailableQuantity
-	}
-	if updatedDetial.Status != "" {
-		savedDetail.Status = updatedDetial.Status
+	if req.AvailableQuantity != 0 {
+		savedDetail.AvailableQuantity += req.AvailableQuantity
 	}
 	err = db.UpdateItem(savedDetail)
 	if err != nil {
 		return nil, err
 	}
-	response := &itemspb.UpdateItemResponse{}
-	response.Item = savedDetail
+	response := &itemspb.UpdateItemResponse{
+		ItemID:            itemID,
+		Seller:            savedDetail.Seller,
+		Title:             savedDetail.Name,
+		Description:       savedDetail.Description,
+		Price:             savedDetail.Price,
+		AvailableQuantity: savedDetail.AvailableQuantity,
+		Status:            savedDetail.Status,
+		QuantitySold:      savedDetail.SoldQuantity,
+	}
 	return response, nil
 
 }
 
 //Delete : To delete the item by particular ID
 func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest) (*itemspb.DeleteItemResponse, error) {
-	oid, _ := primitive.ObjectIDFromHex(req.GetId())
-	err := db.DeleteByID(oid)
+	itemID := req.ItemID
+	userID := req.UserID
+	oid, err := getOID(itemID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Invalid oid")
+	}
+	savedItem, err := db.DetailView(*oid)
+	if err != nil {
+		return nil, errors.New("Item Not Found")
+	}
+	if savedItem.Seller != userID {
+		return nil, errors.New("Item Not Found")
+	}
+
+	err = db.DeleteByID(*oid)
+	if err != nil {
+		return nil, errors.New("Error While Removing The Item From The Database")
 	}
 	response := &itemspb.DeleteItemResponse{}
-	response.Operation = "Item Has Been Deleted Successfully"
+	response.Message = "Item Has Been Deleted Successfully"
 	return response, nil
 }
 
 //Buy : To buy the given item
 func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*itemspb.BuyItemResponse, error) {
-	itemID := req.GetItemID()
+	itemID := req.ItemID
 	// userID := req.GetUserID()
-	oid, err := primitive.ObjectIDFromHex(itemID)
-	item, err := db.BuyItem(oid)
+	oid, err := getOID(itemID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Invalid oid")
+	}
+	item, err := db.BuyItem(*oid)
+	if err != nil {
+		return nil, errors.New("Error While Buying The Item")
 	}
 	if item.AvailableQuantity <= 0 {
-		return nil, errors.New("Item OF Stock")
+		return nil, errors.New("Item Of Stock")
 	}
 	item.AvailableQuantity--
 	item.SoldQuantity++
@@ -135,17 +182,40 @@ func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*item
 	deliveryTime := time.Now()
 	deliveryTime.Format("01-02-2006")
 	deliveryTime = deliveryTime.AddDate(0, 0, 10)
-	response := &itemspb.BuyItemResponse{}
-	response.ExceptedDateOfDilvery = deliveryTime.String()
-	response.Title = item.Title
-	response.Price = item.Price
+	response := &itemspb.BuyItemResponse{
+		ExceptedDateOfDilvery: deliveryTime.String(),
+		Title:                 item.Name,
+		Price:                 item.Price,
+	}
 	return response, nil
 
 }
 
 //SellerView : To Give seller detail view about the item they are selling
-func (s *ItemService) SellerView(c context.Context, view *itemspb.SellerViewRequest) (*itemspb.SellerViewRespsonse, error) {
-	return nil, nil
+func (s *ItemService) SellerView(c context.Context, req *itemspb.SellerViewRequest) (*itemspb.SellerViewRespsonse, error) {
+	userID := req.UserID
+	itemID := req.ItemID
+	oid, err := getOID(itemID)
+	if err != nil {
+		return nil, errors.New("Invalid oid")
+	}
+	item, err := db.DetailView(*oid)
+	if err != nil {
+		return nil, err
+	}
+	if item.Seller != userID {
+		return nil, errors.New("Item Not Found")
+	}
+	respone := &itemspb.SellerViewRespsonse{
+		Seller:            item.Seller,
+		Title:             item.Name,
+		Description:       item.Description,
+		Price:             item.Price,
+		AvailableQuantity: item.AvailableQuantity,
+		QuantitySold:      item.SoldQuantity,
+		Status:            item.Status,
+	}
+	return respone, nil
 }
 
 //SearchItem : To steam the items available with given name

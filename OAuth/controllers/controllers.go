@@ -2,12 +2,11 @@ package controller
 
 import (
 	"net/http"
+
 	"github.com/ankitanwar/e-Commerce/Oauth/domain"
 	"github.com/ankitanwar/e-Commerce/Oauth/services"
 	"github.com/gin-gonic/gin"
-	"fmt"
 )
-
 
 //CreateAccessToken : To get the new access token
 func CreateAccessToken(c *gin.Context) {
@@ -29,8 +28,8 @@ func CreateAccessToken(c *gin.Context) {
 //ValidateAccessToken : To validate the access token
 func ValidateAccessToken(c *gin.Context) {
 	userID := c.Request.Header.Get("X-Caller-Id")
-	if userID==""{
-		c.JSON(http.StatusBadRequest,"Invalid userID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, "Invalid userID")
 	}
 	token := c.Request.Header.Get("access_token")
 	valid, validErr := services.ValidateAccessToken(userID, token)

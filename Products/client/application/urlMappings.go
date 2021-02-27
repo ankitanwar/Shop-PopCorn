@@ -8,4 +8,6 @@ func urlMapping() {
 	router.GET("/items/:id", controllers.ItemController.Get)
 	router.DELETE("/items/:id", controllers.ItemController.Delete)
 	router.POST("/items/buy/:itemsID", controllers.ItemController.Buy)
+	router.PATCH("/items/:id", controllers.ItemController.Update)
+	router.POST("/seller/items/:id", controllers.ItemController.SellerView)
 }

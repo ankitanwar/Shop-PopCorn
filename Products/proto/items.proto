@@ -4,32 +4,36 @@ package items;
 
 option go_package = ".;itemspb";
 
-message Item{
-    string ID=1;
-    string Seller=2;
-    string Title=3;
-    string Description=4;
-    int64 Price=5;
-    int64 AvailableQuantity=6;
-    string Status=8;
-    int64 QuantitySold=9;
-}
-
 message ViewItem{
     string ID=1;
     string Title=2;
     int64 Price=3;
 }
 message CreateItemRequest{
-    Item item=1;
+    string Seller=1;
+    string Name=2;
+    string Description=3;
+    int64 Price=4;
+    int64 AvailableQuantity=5;
 }
 
 message CreateItemResposne{
-    Item item=1;
+    string id=1;
+    string Seller=2;
+    string Title=3;
+    string Description=4;
+    int64 Price=5;
+    int64 AvailableQuantity=6;
+    string Status=7;
+    int64 QuantitySold=8;
 }
 
 message GetItemRequest{
     string ID=1;
+}
+
+message GetItemResposne{
+    ViewItem item=1;
 }
 message SearchItemRequest{
     string name=1;
@@ -39,24 +43,31 @@ message SearchItemResponse{
     ViewItem item=1;
 }
 
-message GetItemResposne{
-    ViewItem item=1;
-}
-
 message UpdateItemRequest{
-    string ID=1;
-    Item item=2;
+    string itemID=1;
+    string Name=2;
+    string Description=3;
+    int64 Price=4;
+    int64 AvailableQuantity=5;
+    string userID=6;
 }
 message UpdateItemResponse{
-    Item item=1;
+    string itemID=1;
+    string Seller=2;
+    string Title=3;
+    string Description=4;
+    int64 Price=5;
+    int64 AvailableQuantity=6;
+    string Status=7;
+    int64 QuantitySold=8;
 }
 
 message DeleteItemRequest{
-    string title=1;
-    string id=2;
+    string userID=1;
+    string ItemID=2;
 }
 message DeleteItemResponse{
-    string Operation=1;
+    string message=1;
 }
 message BuyItemRequest{
     string itemID=1;
@@ -69,11 +80,18 @@ message BuyItemResponse{
     int64 Price=4;
 }
 message SellerViewRequest{
-    string ID=1;
-    string Name=2;
+    string userID=1;
+    string itemID=2;
 }
 message SellerViewRespsonse{
-    Item view=1;
+    string id=1;
+    string Seller=2;
+    string Title=3;
+    string Description=4;
+    int64 Price=5;
+    int64 AvailableQuantity=6;
+    string Status=7;
+    int64 QuantitySold=8;
 }
 
 service ItemService{
