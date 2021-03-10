@@ -34,6 +34,7 @@
 | GetDetails | Ability To View The Details Saved In The system |
 | Update Details | Ability To Update The Saved Details In The System |
 | Add Address | Ability To Add Address |
+| Get Address | Ability To See All The  Addresses |
 
 <br></br>
 
