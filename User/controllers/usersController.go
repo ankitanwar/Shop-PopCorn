@@ -58,6 +58,10 @@ func GetUser(c *gin.Context) {
 
 //UpdateUser :To Update the value of particaular user
 func UpdateUser(c *gin.Context) {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
 	var user = users.User{}
 	userid, userErr := getUserid(c.Request)
 	if userErr != nil {
@@ -71,9 +75,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	isPartial := c.Request.Method == http.MethodPatch
-
-	updatedUser, err := services.UserServices.UpdateUser(isPartial, user)
+	updatedUser, err := services.UserServices.UpdateUser(user)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return

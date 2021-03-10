@@ -75,7 +75,6 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 func getAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestError) {
 	headers.Set(headerXCallerID, userID)
 	headers.Set(paramAccessToken, accessTokenID)
-	fmt.Println("The set value is", userID, accessTokenID)
 	response := oauthRestClient.Get("/validate")
 	if response == nil || response.Response == nil {
 		return nil, errors.NewNotFound("Not found")

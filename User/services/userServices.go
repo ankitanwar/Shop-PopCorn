@@ -17,7 +17,7 @@ type userServices struct{}
 type userServicesInterface interface {
 	CreateUser(users.User) (*users.User, *errors.RestError)
 	GetUser(string) (*users.User, *errors.RestError)
-	UpdateUser(bool, users.User) (*users.User, *errors.RestError)
+	UpdateUser(users.User) (*users.User, *errors.RestError)
 	DeleteUser(string) *errors.RestError
 	FindByStatus(string) (users.Users, *errors.RestError)
 	LoginUser(request users.LoginRequest) (*users.User, *errors.RestError)
@@ -50,33 +50,29 @@ func (u *userServices) GetUser(userid string) (*users.User, *errors.RestError) {
 }
 
 //UpdateUser : To update the values of the existing user
-func (u *userServices) UpdateUser(partial bool, user users.User) (*users.User, *errors.RestError) {
-	current := &users.User{
-		ID: user.ID,
-	}
-	find, err := userDB.Get(user.ID)
+func (u *userServices) UpdateUser(user users.User) (*users.User, *errors.RestError) {
+	savedDetails, err := userDB.Get(user.ID)
 	if err != nil {
 		return nil, err
 	}
-	if partial {
-		if user.FirstName != "" {
-			current.FirstName = user.FirstName
-		}
-		if user.LastName != "" {
-			current.LastName = user.LastName
-		}
-		if user.Email != "" {
-			current.Email = user.Email
-		}
-	} else {
-		current.FirstName = find.FirstName
-		current.LastName = find.LastName
-		current.Email = find.Email
+	if user.FirstName != "" {
+		savedDetails.FirstName = user.FirstName
 	}
-	if err := userDB.Update(current); err != nil {
+	if user.LastName != "" {
+		savedDetails.LastName = user.LastName
+	}
+	if user.Email != "" {
+		savedDetails.Email = user.Email
+	}
+	if user.PhoneNo != "" {
+		if len(user.PhoneNo) < 10 || len(user.PhoneNo) > 10 {
+			return nil, errors.NewBadRequest("Enter The valid Phone Number")
+		}
+	}
+	if err := userDB.Update(savedDetails); err != nil {
 		return nil, err
 	}
-	return current, nil
+	return savedDetails, nil
 }
 
 //DeleteUser : To delete the given user

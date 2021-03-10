@@ -52,9 +52,8 @@ func AddToCart(userID string, item domain.Item) *errors.RestError {
 //RemoveFromCart : To remove the item from the cart
 func RemoveFromCart(userID, itemID string) error {
 	filter := bson.M{"_id": userID}
-	remove := bson.M{"$pull": bson.M{"items": bson.M{"$in": bson.A{bson.M{"itemID": itemID}}}}}
+	remove := bson.M{"$pull": bson.M{"items": bson.M{"itemID": itemID}}}
 	_, err := collection.UpdateOne(context.Background(), filter, remove)
-	fmt.Println("The value of err is", err)
 	if err != nil {
 		return err
 	}

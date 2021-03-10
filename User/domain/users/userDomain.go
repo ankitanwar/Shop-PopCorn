@@ -20,8 +20,8 @@ type User struct {
 
 //Address : Address of the given user
 type Address struct {
-	UserID string        `bson:"_id"`
-	List   []UserAddress `bson:"addresses"`
+	UserID string        `bson:"_id" json:"userID"`
+	List   []UserAddress `bson:"addresses" json:"addresses"`
 }
 
 //UserAddress : Address field for the user
