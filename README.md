@@ -1,4 +1,3 @@
-![](http://imgur.com/t3teAxi.png)
 ### :handbag: A simple Microservices RESTful API TO Buy&Sell Products And Movie Tickets
 
 
@@ -13,8 +12,9 @@
 | Edit a Product | Ability of Edit a Product |
 | Delete a Product | Ability of Delete a Product |
 | SellerView | Ability To View The Quantity Sold and Quantity Left Of The Product For The Seller |
-<br> </br>
 
+
+<br> </br>
 <b>Purchase Features</b>
 
 | Feature  | Description  |
@@ -38,3 +38,4 @@
 <br></br>
 
 # Shop&PopCorn
+
