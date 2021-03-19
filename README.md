@@ -1,4 +1,4 @@
-### :handbag: A simple Microservices RESTful API TO Buy&Sell Products
+### :handbag: A simple RESTful Microservices TO Buy&Sell Products
 
 
 ## Features
