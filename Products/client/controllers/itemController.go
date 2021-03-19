@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 
 	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
+	connect "github.com/ankitanwar/e-Commerce/Products/client/connectToServer"
 	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
-	items "github.com/ankitanwar/e-Commerce/Products/server/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +32,7 @@ type itemControllerInterface interface {
 	Buy(c *gin.Context)
 	Update(c *gin.Context)
 	SellerView(c *gin.Context)
+	SearchByName(c *gin.Context)
 }
 type itemControllerStruct struct {
 }
@@ -47,7 +50,7 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 	}
 	userID := getUserID(c.Request)
 	createItem.Seller = userID
-	result, createErr := items.Services.Create(context.Background(), createItem)
+	result, createErr := connect.Client.Create(context.Background(), createItem)
 	if createErr != nil {
 		c.JSON(http.StatusInternalServerError, createErr)
 		return
@@ -63,7 +66,7 @@ func (i *itemControllerStruct) Buy(c *gin.Context) {
 	itemID := c.Param("itemsID")
 	userID := getUserID(c.Request)
 	buyRequest := &itemspb.BuyItemRequest{ItemID: itemID, UserID: userID}
-	item, err := items.Services.Buy(context.Background(), buyRequest)
+	item, err := connect.Client.Buy(context.Background(), buyRequest)
 	if err != nil {
 		if err == errors.New("Out Of Stock") {
 			c.JSON(http.StatusNotFound, "Item Is Currently Out Of stock")
@@ -82,7 +85,7 @@ func (i *itemControllerStruct) Get(c *gin.Context) {
 	toFind := &itemspb.GetItemRequest{
 		ID: oid,
 	}
-	res, err := items.Services.Get(context.Background(), toFind)
+	res, err := connect.Client.Get(context.Background(), toFind)
 	if err != nil {
 		c.JSON(http.StatusFound, err)
 		return
@@ -102,7 +105,7 @@ func (i *itemControllerStruct) Delete(c *gin.Context) {
 		ItemID: itemID,
 		UserID: userID,
 	}
-	res, err := items.Services.Delete(context.Background(), ItemDetail)
+	res, err := connect.Client.Delete(context.Background(), ItemDetail)
 	if err != nil {
 		c.JSON(http.StatusFound, err)
 		return
@@ -128,7 +131,7 @@ func (i *itemControllerStruct) Update(c *gin.Context) {
 		return
 	}
 	fmt.Println("The value of items is", itemToBeUpdated)
-	response, err := items.Services.Update(context.Background(), itemToBeUpdated)
+	response, err := connect.Client.Update(context.Background(), itemToBeUpdated)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "Error While Updating The Item")
 		return
@@ -149,7 +152,7 @@ func (i *itemControllerStruct) SellerView(c *gin.Context) {
 		UserID: userID,
 		ItemID: itemID,
 	}
-	view, err := items.Services.SellerView(context.Background(), viewRequest)
+	view, err := connect.Client.SellerView(context.Background(), viewRequest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Error while fetching the database ")
 		return
@@ -160,5 +163,29 @@ func (i *itemControllerStruct) SellerView(c *gin.Context) {
 
 //SearchByName : To search the items by name
 func (i *itemControllerStruct) SearchByName(c *gin.Context) {
+	itemName := c.Param("itemName")
+	if len(itemName) == 0 {
+		c.JSON(http.StatusBadRequest, "Please Enter The valid Item Name")
+		return
+	}
+	searchItemRequest := &itemspb.SearchItemRequest{
+		Name: itemName,
+	}
+	items, err := connect.Client.SearchItem(context.Background(), searchItemRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Error While Fetching The Items")
+		return
+	}
+	for {
+		details, err := items.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalln("error while fetching the item with given Details", err)
+		}
+		c.JSON(http.StatusAccepted, details.Item)
+
+	}
 
 }

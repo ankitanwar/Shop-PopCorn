@@ -9,13 +9,14 @@ import (
 	"os/signal"
 
 	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
-	items "github.com/ankitanwar/e-Commerce/Products/server/services"
 	db "github.com/ankitanwar/e-Commerce/Products/server/database"
+	items "github.com/ankitanwar/e-Commerce/Products/server/services"
 	"google.golang.org/grpc"
 )
 
 //StartServer : To start the the item server
 func StartServer() {
+	fmt.Println("Start Sever funcion is invoked")
 	lis, err := net.Listen("tcp", "0.0.0.0:4040")
 	if err != nil {
 		log.Fatalln("Unable to listen")

@@ -10,4 +10,5 @@ func urlMapping() {
 	router.POST("/items/buy/:itemsID", controllers.ItemController.Buy)
 	router.PATCH("/items/:id", controllers.ItemController.Update)
 	router.POST("/seller/items/:id", controllers.ItemController.SellerView)
+	router.GET("/item/search/:itemName", controllers.ItemController.SearchByName)
 }

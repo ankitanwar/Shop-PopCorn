@@ -83,3 +83,13 @@ func UpdateQunatity(item *domain.Item) error {
 	return nil
 
 }
+
+//SearchByName : To search the given item by name
+func SearchByName(name string) (*mongo.Cursor, error) {
+	filter := bson.M{"name": name}
+	items, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
+}

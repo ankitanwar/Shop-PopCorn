@@ -45,6 +45,7 @@ func (s *ItemService) Create(ctx context.Context, req *itemspb.CreateItemRequest
 		SoldQuantity:      0,
 		Status:            "Available",
 	}
+	println("The value of createItem is", item)
 	res, err := db.SaveItem(item)
 	if err != nil {
 		return nil, err
@@ -220,5 +221,25 @@ func (s *ItemService) SellerView(c context.Context, req *itemspb.SellerViewReque
 
 //SearchItem : To steam the items available with given name
 func (s *ItemService) SearchItem(req *itemspb.SearchItemRequest, stream itemspb.ItemService_SearchItemServer) error {
+	name := req.Name
+	result, err := db.SearchByName(name)
+	if err != nil {
+		return err
+	}
+	var items []domain.Item
+	result.All(context.Background(), &items)
+	for i := 0; i < len(items); i++ {
+		current := items[i]
+		item := &itemspb.ViewItem{
+			ID:    current.ID.Hex(),
+			Title: current.Name,
+			Price: current.Price,
+		}
+		response := &itemspb.SearchItemResponse{
+			Item: item,
+		}
+		stream.Send(response)
+
+	}
 	return nil
 }
