@@ -1,4 +1,4 @@
-### :handbag: A simple Microservices RESTful API TO Buy&Sell Products And Movie Tickets
+### :handbag: A simple Microservices RESTful API TO Buy&Sell Products
 
 
 ## Features
@@ -7,10 +7,10 @@
 
 | Feature  | Description  |
 |----------|:-------------|
-| Add a Product | Ability of Add a Product on the System |
-| List Products | Ability of List Products |
-| Edit a Product | Ability of Edit a Product |
-| Delete a Product | Ability of Delete a Product |
+| Add a Product | Ability To Add a Product on the System |
+| List Products | Ability TO List Products |
+| Edit a Product | Ability To Edit a Product |
+| Delete a Product | Ability To Delete a Product |
 | SellerView | Ability To View The Quantity Sold and Quantity Left Of The Product For The Seller |
 
 
@@ -19,10 +19,10 @@
 
 | Feature  | Description  |
 |----------|:-------------|
-| See Cart | Ability to see the Cart and it items |
-| Add Item | Ability of add a new Item on the Cart |
-| Remove a Item | Ability of Remove a Item from the Cart |
-| Checkout | Ability to Checkout |
+| See Cart | Ability To See The Cart and Items Inside It |
+| Add Item | Ability To Add New Item Into The Cart |
+| Remove a Item | Ability To Remove Item from The Cart |
+| Checkout | Ability To Buy All Items Inside The Cart |
 
 <br></br>
 <b>User Features</b>
