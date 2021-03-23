@@ -3,10 +3,11 @@ package application
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
-	mongo "github.com/ankitanwar/e-Commerce/Oauth/database"
+	mongo "github.com/ankitanwar/Shop-PopCorn/Oauth/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,6 +27,6 @@ func StartApplication() {
 	fmt.Println("Closing the Connection with server")
 	err := mongo.Client.Disconnect(context.Background())
 	if err != nil {
-		fmt.Println("Error while closing the connection with mongoDB")
+		log.Fatalln("Error While Closing The Server")
 	}
 }

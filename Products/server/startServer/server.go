@@ -8,9 +8,9 @@ import (
 	"os"
 	"os/signal"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
-	db "github.com/ankitanwar/e-Commerce/Products/server/database"
-	items "github.com/ankitanwar/e-Commerce/Products/server/services"
+	itemspb "github.com/ankitanwar/Shop-PopCorn/Products/proto"
+	db "github.com/ankitanwar/Shop-PopCorn/Products/server/database"
+	items "github.com/ankitanwar/Shop-PopCorn/Products/server/services"
 	"google.golang.org/grpc"
 )
 

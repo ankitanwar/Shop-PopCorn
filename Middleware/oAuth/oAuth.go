@@ -12,14 +12,13 @@ import (
 )
 
 const (
-	headerXPublic   = "X-Public"
-	headerXCallerID = "X-Caller-Id"
+	headerXAccessTokenID = "X-Token-ID"
+	headerXCallerID      = "X-Caller-ID"
 )
 
 var (
-	paramAccessToken = "access_token"
-	headers          = make(http.Header)
-	oauthRestClient  = rest.RequestBuilder{
+	headers         = make(http.Header)
+	oauthRestClient = rest.RequestBuilder{
 		BaseURL: "http://localhost:8090",
 		Timeout: 200 * time.Millisecond,
 		Headers: headers,
@@ -29,14 +28,6 @@ var (
 type accessToken struct {
 	UserID string `json:"user_id"`
 	Email  string `json:"email"`
-}
-
-//IsPublic : To validate the request whether the request is public or not
-func IsPublic(request *http.Request) bool {
-	if request == nil {
-		return true
-	}
-	return request.Header.Get(headerXPublic) == "true"
 }
 
 //GetCallerID : To get the caller id from the url
@@ -54,7 +45,7 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 		return errors.NewInternalServerError("Invalid Error")
 	}
 
-	accessTokenID := request.Header.Get(paramAccessToken)
+	accessTokenID := request.Header.Get(headerXAccessTokenID)
 	if accessTokenID == "" {
 		return errors.NewBadRequest("InValid Access Token")
 	}
@@ -62,7 +53,7 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 	if len(userID) <= 0 {
 		return errors.NewBadRequest("Invalid User ID")
 	}
-	_, err := getAccessToken(accessTokenID, userID)
+	_, err := verifyAccessToken(accessTokenID, userID)
 	if err != nil {
 		if err.Status == http.StatusNotFound {
 			return errors.NewNotFound("Token id is expired")
@@ -72,9 +63,9 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 	return nil
 }
 
-func getAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestError) {
+func verifyAccessToken(accessTokenID, userID string) (*accessToken, *errors.RestError) {
 	headers.Set(headerXCallerID, userID)
-	headers.Set(paramAccessToken, accessTokenID)
+	headers.Set(headerXAccessTokenID, accessTokenID)
 	response := oauthRestClient.Get("/validate")
 	if response == nil || response.Response == nil {
 		return nil, errors.NewNotFound("Not found")

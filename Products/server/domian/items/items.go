@@ -15,3 +15,9 @@ type Item struct {
 	SoldQuantity      int64              `bson:"quantitysold"`
 	Status            string             `bson:"status"`
 }
+
+type BuyItem struct {
+	ItemName     string
+	DeliveryTime string
+	Price        int64
+}

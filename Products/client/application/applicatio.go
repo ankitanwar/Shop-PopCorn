@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	connect "github.com/ankitanwar/e-Commerce/Products/client/connectToServer"
+	connect "github.com/ankitanwar/Shop-PopCorn/Products/client/connectToServer"
 	"github.com/gin-gonic/gin"
 )
 

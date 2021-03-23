@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
-	db "github.com/ankitanwar/e-Commerce/Products/server/database"
-	domain "github.com/ankitanwar/e-Commerce/Products/server/domian/items"
+	itemspb "github.com/ankitanwar/Shop-PopCorn/Products/proto"
+	db "github.com/ankitanwar/Shop-PopCorn/Products/server/database"
+	domain "github.com/ankitanwar/Shop-PopCorn/Products/server/domian/items"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -31,21 +31,50 @@ func getOID(id string) (*primitive.ObjectID, error) {
 	return &oid, nil
 }
 
+func BuyItem(itemID string) (*domain.BuyItem, error) {
+	oid, err := getOID(itemID)
+	if err != nil {
+		return nil, errors.New("Invalid oid")
+	}
+	item, err := db.BuyItem(*oid)
+	if err != nil {
+		return nil, errors.New("Error While Buying The Item")
+	}
+	if item.AvailableQuantity <= 0 {
+		return nil, errors.New("Item Of Stock")
+	}
+	item.AvailableQuantity--
+	item.SoldQuantity++
+	err = db.UpdateQunatity(item)
+	if err != nil {
+		return nil, errors.New("Error While Buying The Item")
+	}
+	deliveryTime := time.Now()
+	deliveryTime.Format("01-02-2006")
+	deliveryTime = deliveryTime.AddDate(0, 0, 10)
+	result := &domain.BuyItem{
+		DeliveryTime: deliveryTime.String(),
+		Price:        item.Price,
+		ItemName:     item.Name,
+	}
+	return result, nil
+
+}
+
 //Create : To Create the item
 func (s *ItemService) Create(ctx context.Context, req *itemspb.CreateItemRequest) (*itemspb.CreateItemResposne, error) {
 	if len(req.Name) == 0 {
 		return nil, errors.New("Please Enter The Valid Name")
 	}
 	item := &domain.Item{
-		Seller:            req.Seller,
-		Name:              req.Name,
-		Description:       req.Description,
-		Price:             req.Price,
-		AvailableQuantity: req.AvailableQuantity,
+		Seller:            req.GetSeller(),
+		Name:              req.GetName(),
+		Description:       req.GetDescription(),
+		Price:             req.GetPrice(),
+		AvailableQuantity: req.GetAvailableQuantity(),
 		SoldQuantity:      0,
 		Status:            "Available",
 	}
-	println("The value of createItem is", item)
 	res, err := db.SaveItem(item)
 	if err != nil {
 		return nil, err
@@ -67,10 +96,10 @@ func (s *ItemService) Create(ctx context.Context, req *itemspb.CreateItemRequest
 
 //Get : To Get The Item By Particular Id
 func (s *ItemService) Get(ctx context.Context, req *itemspb.GetItemRequest) (*itemspb.GetItemResposne, error) {
-	itemID := req.ID
+	itemID := req.GetID()
 	oid, err := getOID(itemID)
 	if err != nil {
-		return nil, errors.New("Invalid Item iD")
+		return nil, errors.New("Invalid Item ID")
 	}
 	item, err := db.SearchByID(*oid)
 	if err != nil {
@@ -90,8 +119,8 @@ func (s *ItemService) Get(ctx context.Context, req *itemspb.GetItemRequest) (*it
 
 //Update : To update the item by particular ID
 func (s *ItemService) Update(ctx context.Context, req *itemspb.UpdateItemRequest) (*itemspb.UpdateItemResponse, error) {
-	itemID := req.ItemID
-	userID := req.UserID
+	itemID := req.GetItemID()
+	userID := req.GetUserID()
 	oid, err := getOID(itemID)
 	if err != nil {
 		return nil, errors.New("Invalid oid")
@@ -103,14 +132,14 @@ func (s *ItemService) Update(ctx context.Context, req *itemspb.UpdateItemRequest
 	if savedDetail.Seller != userID {
 		return nil, errors.New("Item Not Found")
 	}
-	if req.Name != "" {
-		savedDetail.Name = req.Name
+	if req.GetName() != "" {
+		savedDetail.Name = req.GetName()
 	}
 	if req.Description != "" {
-		savedDetail.Description = req.Description
+		savedDetail.Description = req.GetDescription()
 	}
 	if req.AvailableQuantity != 0 {
-		savedDetail.AvailableQuantity += req.AvailableQuantity
+		savedDetail.AvailableQuantity += req.GetAvailableQuantity()
 	}
 	err = db.UpdateItem(savedDetail)
 	if err != nil {
@@ -132,8 +161,8 @@ func (s *ItemService) Update(ctx context.Context, req *itemspb.UpdateItemRequest
 
 //Delete : To delete the item by particular ID
 func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest) (*itemspb.DeleteItemResponse, error) {
-	itemID := req.ItemID
-	userID := req.UserID
+	itemID := req.GetItemID()
+	userID := req.GetUserID()
 	oid, err := getOID(itemID)
 	if err != nil {
 		return nil, errors.New("Invalid oid")
@@ -157,36 +186,15 @@ func (s *ItemService) Delete(ctx context.Context, req *itemspb.DeleteItemRequest
 
 //Buy : To buy the given item
 func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*itemspb.BuyItemResponse, error) {
-	itemID := req.ItemID
-	// userID := req.GetUserID()
-	oid, err := getOID(itemID)
+	itemID := req.GetItemID()
+	buyItem, err := BuyItem(itemID)
 	if err != nil {
-		return nil, errors.New("Invalid oid")
+		return nil, errors.New("Unable To Buy The Product")
 	}
-	item, err := db.BuyItem(*oid)
-	if err != nil {
-		return nil, errors.New("Error While Buying The Item")
-	}
-	if item.AvailableQuantity <= 0 {
-		return nil, errors.New("Item Of Stock")
-	}
-	item.AvailableQuantity--
-	item.SoldQuantity++
-	err = db.UpdateQunatity(item)
-	if err != nil {
-		return nil, errors.New("Error While Buying The Item")
-	}
-	// address, addressErr := user.GetUserAddress.GetAddress(userID)
-	// if addressErr != nil {
-	// 	return nil, errors.New("Invalid address")
-	// }
-	deliveryTime := time.Now()
-	deliveryTime.Format("01-02-2006")
-	deliveryTime = deliveryTime.AddDate(0, 0, 10)
 	response := &itemspb.BuyItemResponse{
-		ExceptedDateOfDilvery: deliveryTime.String(),
-		Title:                 item.Name,
-		Price:                 item.Price,
+		ExceptedDateOfDilvery: buyItem.DeliveryTime,
+		Title:                 buyItem.ItemName,
+		Price:                 buyItem.Price,
 	}
 	return response, nil
 
@@ -194,8 +202,8 @@ func (s *ItemService) Buy(c context.Context, req *itemspb.BuyItemRequest) (*item
 
 //SellerView : To Give seller detail view about the item they are selling
 func (s *ItemService) SellerView(c context.Context, req *itemspb.SellerViewRequest) (*itemspb.SellerViewRespsonse, error) {
-	userID := req.UserID
-	itemID := req.ItemID
+	userID := req.GetUserID()
+	itemID := req.GetItemID()
 	oid, err := getOID(itemID)
 	if err != nil {
 		return nil, errors.New("Invalid oid")
@@ -221,7 +229,7 @@ func (s *ItemService) SellerView(c context.Context, req *itemspb.SellerViewReque
 
 //SearchItem : To steam the items available with given name
 func (s *ItemService) SearchItem(req *itemspb.SearchItemRequest, stream itemspb.ItemService_SearchItemServer) error {
-	name := req.Name
+	name := req.GetName()
 	result, err := db.SearchByName(name)
 	if err != nil {
 		return err
@@ -242,4 +250,18 @@ func (s *ItemService) SearchItem(req *itemspb.SearchItemRequest, stream itemspb.
 
 	}
 	return nil
+}
+
+func (S *ItemService) CheckOut(ctx context.Context, req *itemspb.CheckoutRequest) (*itemspb.CheckOutResponse, error) {
+	itemID := req.GetItemID()
+	buyItem, err := BuyItem(itemID)
+	if err != nil {
+		return nil, errors.New("Unable To Buy The Product")
+	}
+	response := &itemspb.CheckOutResponse{
+		ExceptedDateOfDilvery: buyItem.DeliveryTime,
+		Title:                 buyItem.ItemName,
+		Price:                 buyItem.Price,
+	}
+	return response, nil
 }

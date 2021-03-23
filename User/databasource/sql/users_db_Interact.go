@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	"github.com/ankitanwar/e-Commerce/User/domain/users"
-	User "github.com/ankitanwar/e-Commerce/User/domain/users"
-	cryptos "github.com/ankitanwar/e-Commerce/User/utils/cryptoUtils"
+	"github.com/ankitanwar/Shop-PopCorn/User/domain/users"
+	User "github.com/ankitanwar/Shop-PopCorn/User/domain/users"
+	cryptos "github.com/ankitanwar/Shop-PopCorn/User/utils/cryptoUtils"
 )
 
 const (

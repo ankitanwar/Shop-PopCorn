@@ -1,15 +1,15 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
+
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	mongo "github.com/ankitanwar/e-Commerce/Oauth/database"
-	"github.com/ankitanwar/e-Commerce/Oauth/domain"
+	mongo "github.com/ankitanwar/Shop-PopCorn/Oauth/database"
+	"github.com/ankitanwar/Shop-PopCorn/Oauth/domain"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/mercadolibre/golang-restclient/rest"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 var (
@@ -17,25 +17,12 @@ var (
 		BaseURL: "http://localhost:8081",
 		Timeout: 100 * time.Millisecond,
 	}
-	//NotFound : If the id is not present in the database
-	NotFound = "mongo: no documents in result"
+	mySigningKey = []byte("AddThisKeyInEnvironmentVariable")
 )
-func createFirstAccessToken(user *domain.User)(*domain.AccessToken,*errors.RestError){
-	token:=&domain.AccessToken{}
-	token.UserID = user.UserID
-	token.Email = user.Email
-	token.CreateAccessToken()
-	token.CreateExperationTime()
-	_, err := mongo.Collection.InsertOne(context.Background(), token)
-	if err != nil {
-		return nil, errors.NewInternalServerError("Error while creatubg the access token")
-	}
-	return token, nil
-}
 
 //CreateAccessToken : To create the new access Token
 func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.RestError) {
-	ans := restClinet.Post("/user/login", req)
+	ans := restClinet.Post("/user/verify", req)
 	if ans == nil || ans.Response == nil {
 		return nil, errors.NewInternalServerError("Error while login")
 	}
@@ -43,55 +30,71 @@ func CreateAccessToken(req *domain.LoginRequest) (*domain.AccessToken, *errors.R
 	if ans.StatusCode < 299 {
 		err := json.Unmarshal(ans.Bytes(), user)
 		if err != nil {
-			fmt.Println("The value of err is",err)
+			fmt.Println("The value of err is", err)
 			return nil, errors.NewInternalServerError("Error while unmarshalling the data")
 		}
 	} else {
 		return nil, errors.NewBadRequest("Unable to find the user")
 	}
-	token := &domain.AccessToken{}
-	filter := bson.M{"_id": user.UserID}
-	findErr := mongo.Collection.FindOne(context.Background(), filter).Decode(token)
-	if findErr != nil {
-		if findErr.Error() == NotFound {
-			firstToken,err:=createFirstAccessToken(user)
-			if err!=nil{
-				return nil,err
-			}
-			return firstToken,nil
-		}
-		return nil, errors.NewInternalServerError("Cannot find the user")
+	tokenID := jwt.New(jwt.SigningMethodHS256)
+	claims := tokenID.Claims.(jwt.MapClaims)
+	claims["authorized"] = true
+	claims["user"] = user.UserID
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	tokenString, err := tokenID.SignedString(mySigningKey)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Error While Creating The Access Token")
 	}
-	newExp := token.UpdateExperationTime()
-	newTok := token.UpdateAccessToken()
-	update := bson.D{
-		{"$set", bson.D{{"access_token", newTok}, {"expires", newExp}}},
+	token := &domain.AccessToken{
+		UserID: user.UserID,
+		Email:  user.Email,
+		Token:  tokenString,
 	}
-	_, updateErr := mongo.Collection.UpdateOne(context.Background(), filter, update)
-	if updateErr != nil {
-		return nil, errors.NewInternalServerError(updateErr.Error())
+	err = mongo.UpdateAccessToken(token)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Unable To Create The Access Token")
 	}
-	token.Expires = newExp
-	token.Token = newTok
 	return token, nil
 
 }
 
 //ValidateAccessToken : To validate the Access Token
 func ValidateAccessToken(userID string, token string) (*domain.AccessToken, *errors.RestError) {
-	filter := bson.M{"_id": userID}
-	access := &domain.AccessToken{}
-	err := mongo.Collection.FindOne(context.Background(), filter).Decode(access)
-	if err != nil {
-		return nil, errors.NewInternalServerError("User not found")
-	}
-	if access.Token == token {
-		err := domain.ValidateAccessToken(*access)
-		if err != nil {
-			return nil, err
+	check, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("There is an error")
 		}
-		return access, nil
+		return mySigningKey, nil
+	})
+	if err != nil {
+		return nil, errors.NewInternalServerError("Error While Verify The Token")
 	}
-	return nil, errors.NewBadRequest("Invalid Credentials")
+	if check.Valid {
+		response, err := mongo.GetAccessToken(userID)
+		if err != nil {
+			return nil, errors.NewInternalServerError("Error WhileFethcing The Token")
+		}
+		if response.Token == "" {
+			return nil, errors.NewBadRequest("Invalid Token ID")
+		}
+		return response, nil
+	}
+	return nil, errors.NewBadRequest("Invalid Token ID")
+}
+
+//RemoveAccessToken : To Remove The Access Token Of the Given User
+func RemoveAccessToken(userID string, sentToken string) *errors.RestError {
+	detail, err := mongo.GetAccessToken(userID)
+	if err != nil {
+		return errors.NewInternalServerError("Error While Fetching The details")
+	}
+	if detail.Token != sentToken {
+		return errors.NewBadRequest("Invalid Access Token")
+	}
+	err = mongo.RemoveAccessToken(userID)
+	if err != nil {
+		return errors.NewInternalServerError("Error While removing The Access Token")
+	}
+	return nil
 
 }

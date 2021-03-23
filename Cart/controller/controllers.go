@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	"github.com/ankitanwar/e-Commerce/Cart/services"
-	product "github.com/ankitanwar/e-Commerce/Middleware/Products"
-	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
+	"github.com/ankitanwar/Shop-PopCorn/Cart/services"
+	product "github.com/ankitanwar/Shop-PopCorn/Middleware/Products"
+	oauth "github.com/ankitanwar/Shop-PopCorn/Middleware/oAuth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -87,5 +87,16 @@ func ViewCart(c *gin.Context) {
 
 //Checkout : To checkout all the items from the cart
 func Checkout(c *gin.Context) {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	userID := getCallerID(c.Request)
+	response, err := services.Checkout(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Unable To Checkout The cart")
+		return
+	}
+	c.JSON(http.StatusAccepted, response)
 
 }

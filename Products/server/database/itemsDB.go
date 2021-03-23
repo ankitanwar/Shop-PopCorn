@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	domain "github.com/ankitanwar/e-Commerce/Products/server/domian/items"
+	domain "github.com/ankitanwar/Shop-PopCorn/Products/server/domian/items"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

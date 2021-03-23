@@ -1,8 +1,9 @@
 package application
 
-import controller "github.com/ankitanwar/e-Commerce/Oauth/controllers"
+import controller "github.com/ankitanwar/Shop-PopCorn/Oauth/controllers"
 
 func mapURL() {
-	router.POST("/access_token", controller.CreateAccessToken)
+	router.POST("/login", controller.CreateAccessToken)
 	router.GET("/validate", controller.ValidateAccessToken)
+	router.DELETE("/logout", controller.RemoveAccessToken)
 }

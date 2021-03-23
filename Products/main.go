@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ankitanwar/e-Commerce/Products/client/application"
-	server "github.com/ankitanwar/e-Commerce/Products/server/startServer"
+	"github.com/ankitanwar/Shop-PopCorn/Products/client/application"
+	server "github.com/ankitanwar/Shop-PopCorn/Products/server/startServer"
 )
 
 func main() {

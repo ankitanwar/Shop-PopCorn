@@ -12,3 +12,9 @@ type ItemValue struct {
 	Status            string `json:"Status"`
 	AvailableQuantity int    `json:"AvailableQuantity"`
 }
+
+type BuyResponse struct {
+	Price       int64  `json:"price"`
+	DeliverDate string `json:"ExceptedDateOfDilvery"`
+	Title       string `json:"Title"`
+}

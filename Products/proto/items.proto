@@ -94,6 +94,15 @@ message SellerViewRespsonse{
     int64 QuantitySold=8;
 }
 
+message CheckoutRequest{
+    string itemID=1;
+}
+message CheckOutResponse{
+    string Title=1;
+    string ExceptedDateOfDilvery=2;
+    int64 price=3;
+}
+
 service ItemService{
     rpc Create(CreateItemRequest) returns (CreateItemResposne);
     rpc Get(GetItemRequest) returns (GetItemResposne);
@@ -102,4 +111,5 @@ service ItemService{
     rpc Buy(BuyItemRequest) returns (BuyItemResponse);
     rpc SellerView(SellerViewRequest) returns (SellerViewRespsonse);
     rpc SearchItem (SearchItemRequest) returns (stream SearchItemResponse);
+    rpc CheckOut (CheckoutRequest)returns (CheckOutResponse);
 }

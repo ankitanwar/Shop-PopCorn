@@ -2,9 +2,12 @@ package addressdb
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/ankitanwar/e-Commerce/User/domain/users"
+	"github.com/ankitanwar/Shop-PopCorn/User/domain/users"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -12,24 +15,13 @@ var (
 	NotFound = "mongo: no documents in result"
 )
 
-func createNewAddress(userID string, address *users.UserAddress) error {
-	addAddress := &users.Address{}
-	addAddress.UserID = userID
-	addAddress.List = append(addAddress.List, *address)
-	_, err := collection.InsertOne(context.Background(), addAddress)
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
-
 //GetUserAddress : To get the all given address from the databse
 func GetUserAddress(userID string) (*users.Address, error) {
 	address := &users.Address{}
 	filter := bson.M{"_id": userID}
 	err := collection.FindOne(context.Background(), filter).Decode(address)
 	if err != nil {
+		fmt.Println("The value of databse err is", err)
 		return nil, err
 	}
 	return address, nil
@@ -38,21 +30,10 @@ func GetUserAddress(userID string) (*users.Address, error) {
 
 //AddAddress : To add the given address into the database
 func AddAddress(userID string, address *users.UserAddress) error {
-	storedAddress := &users.Address{}
+	opts := options.Update().SetUpsert(true)
 	filter := bson.M{"_id": userID}
-	err := collection.FindOne(context.Background(), filter).Decode(storedAddress)
-	if err != nil {
-		if err.Error() == NotFound {
-			err = createNewAddress(userID, address)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
 	addAddress := bson.M{"$push": bson.M{"addresses": address}}
-	_, err = collection.UpdateOne(context.Background(), filter, addAddress)
+	_, err := collection.UpdateOne(context.Background(), filter, addAddress, opts)
 	if err != nil {
 		return err
 	}
@@ -60,6 +41,18 @@ func AddAddress(userID string, address *users.UserAddress) error {
 }
 
 //RemoveAddress : To remove the given item from the address
-func RemoveAddress(userID string) {
+func RemoveAddress(userID string, addressID string) error {
+	filter := bson.M{"_id": userID}
+	remove := bson.M{"$pull": bson.M{"addresses": bson.M{"id": addressID}}}
+	_, err := collection.UpdateOne(context.Background(), filter, remove)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
+func UserSpecificAddress(userID, addressID string) *mongo.SingleResult {
+	filter := bson.M{"_id": userID, "addresses": bson.M{"id": addressID}}
+	result := collection.FindOne(context.Background(), filter)
+	return result
 }

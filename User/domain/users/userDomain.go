@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
+	"github.com/uuid"
 )
 
 //User : User and its values
@@ -26,30 +27,40 @@ type Address struct {
 
 //UserAddress : Address field for the user
 type UserAddress struct {
-	Address string `json:"address"`
-	State   string `json:"state"`
-	Country string `json:"country"`
-	Phone   string `json:"phone"`
+	ID          string
+	HouseNumber string `json:"houseNo"`
+	Street      string `json:"street"`
+	State       string `json:"state"`
+	Country     string `json:"country"`
+	Phone       string `json:"phone"`
 }
 
 //Users : It will return the slices of users
 type Users []User
 
 //ValidateAddress : To validate the given aaddress
-func (ua *UserAddress) ValidateAddress() *errors.RestError {
-	if len(ua.Address) < 0 {
+func (address *UserAddress) ValidateAddress() *errors.RestError {
+	if len(address.HouseNumber) < 0 {
 		return errors.NewBadRequest("Enter the valid address")
-	}
-	if len(ua.State) < 0 {
+	} else if len(address.Street) <= 0 {
+		return errors.NewBadRequest("Please Enter The valid Street Number")
+	} else if len(address.State) < 0 {
 		return errors.NewBadRequest("Enter the valid address")
-	}
-	if len(ua.Country) < 0 {
+	} else if len(address.Country) < 0 {
 		return errors.NewBadRequest("Enter the valid address")
-	}
-	if len(ua.Phone) > 10 || len(ua.Phone) < 10 {
+	} else if len(address.Phone) > 10 || len(address.Phone) < 10 {
 		return errors.NewBadRequest("Please Enter the valid phone number")
 	}
 	return nil
+}
+
+func (address *UserAddress) GenerateUniqueAddressID() (string, *errors.RestError) {
+	id, err := uuid.NewV4()
+	if err != nil {
+		return "", errors.NewInternalServerError("Error While Generating The Address")
+	}
+	stringID := id.String()
+	return stringID, nil
 }
 
 //Validate : To validate the users

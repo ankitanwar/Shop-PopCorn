@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 
-	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
-	connect "github.com/ankitanwar/e-Commerce/Products/client/connectToServer"
-	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+	oauth "github.com/ankitanwar/Shop-PopCorn/Middleware/oAuth"
+	connect "github.com/ankitanwar/Shop-PopCorn/Products/client/connectToServer"
+	itemspb "github.com/ankitanwar/Shop-PopCorn/Products/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +21,7 @@ var (
 
 //getUserID : To get the ID of the user
 func getUserID(req *http.Request) string {
-	userID := req.Header.Get("X-Caller-Id")
+	userID := req.Header.Get("X-Caller-ID")
 	return userID
 }
 
@@ -33,6 +33,7 @@ type itemControllerInterface interface {
 	Update(c *gin.Context)
 	SellerView(c *gin.Context)
 	SearchByName(c *gin.Context)
+	CheckOut(c *gin.Context)
 }
 type itemControllerStruct struct {
 }
@@ -59,14 +60,15 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 
 }
 func (i *itemControllerStruct) Buy(c *gin.Context) {
-	if err := oauth.AuthenticateRequest(c.Request); err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
 	itemID := c.Param("itemsID")
 	userID := getUserID(c.Request)
+	// address, err := user.GetUserAddress.GetAddress(c.Request)
+	// if err != nil {
+	// 	c.JSON(err.Status, err)
+	// 	return
+	// }
 	buyRequest := &itemspb.BuyItemRequest{ItemID: itemID, UserID: userID}
-	item, err := connect.Client.Buy(context.Background(), buyRequest)
+	response, err := connect.Client.Buy(context.Background(), buyRequest)
 	if err != nil {
 		if err == errors.New("Out Of Stock") {
 			c.JSON(http.StatusNotFound, "Item Is Currently Out Of stock")
@@ -76,7 +78,7 @@ func (i *itemControllerStruct) Buy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, response)
 }
 
 //Get : To get the particaular item by given ID
@@ -187,5 +189,27 @@ func (i *itemControllerStruct) SearchByName(c *gin.Context) {
 		c.JSON(http.StatusAccepted, details.Item)
 
 	}
+
+}
+
+//Checkout : To checkout all the items in the cart
+func (i *itemControllerStruct) CheckOut(c *gin.Context) {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	itemID := c.Param("itemsID")
+	buyRequest := &itemspb.CheckoutRequest{ItemID: itemID}
+	response, err := connect.Client.CheckOut(context.Background(), buyRequest)
+	if err != nil {
+		if err == errors.New("Out Of Stock") {
+			c.JSON(http.StatusNotFound, "Item Is Currently Out Of stock")
+		} else {
+			c.JSON(http.StatusInternalServerError, "Some Error has been occured")
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 
 }

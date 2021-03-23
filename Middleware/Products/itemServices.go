@@ -65,8 +65,8 @@ func (item *itemServicesStruct) BuyItem(itemID string) *errors.RestError {
 	if err != nil {
 		return err
 	}
-	res := restClient.Post(fmt.Sprintf("/items/buy/%s", itemID), nil)
-	if res.StatusCode == 200 {
+	res := restClient.Post(fmt.Sprintf("/checkout/%s", itemID), nil)
+	if res.StatusCode < 300 {
 		return nil
 	}
 	return errors.NewBadRequest("Unable to purchase items")

@@ -3,7 +3,7 @@ package connect
 import (
 	"fmt"
 
-	itemspb "github.com/ankitanwar/e-Commerce/Products/proto"
+	itemspb "github.com/ankitanwar/Shop-PopCorn/Products/proto"
 	"google.golang.org/grpc"
 )
 

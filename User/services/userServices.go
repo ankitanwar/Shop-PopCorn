@@ -2,9 +2,8 @@ package services
 
 import (
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	addressDB "github.com/ankitanwar/e-Commerce/User/databasource/mongoDB"
-	userDB "github.com/ankitanwar/e-Commerce/User/databasource/postgres"
-	"github.com/ankitanwar/e-Commerce/User/domain/users"
+	userDB "github.com/ankitanwar/Shop-PopCorn/User/databasource/sql"
+	"github.com/ankitanwar/Shop-PopCorn/User/domain/users"
 )
 
 var (
@@ -19,11 +18,7 @@ type userServicesInterface interface {
 	GetUser(string) (*users.User, *errors.RestError)
 	UpdateUser(users.User) (*users.User, *errors.RestError)
 	DeleteUser(string) *errors.RestError
-	FindByStatus(string) (users.Users, *errors.RestError)
-	LoginUser(request users.LoginRequest) (*users.User, *errors.RestError)
-	GetAddress(string) (*users.Address, *errors.RestError)
-	AddAddress(string, *users.UserAddress) *errors.RestError
-	RemoveAddress(string)
+	VerifyUser(request users.LoginRequest) (*users.User, *errors.RestError)
 }
 
 //CreateUser : To save the user in the database
@@ -84,17 +79,7 @@ func (u *userServices) DeleteUser(userID string) *errors.RestError {
 	return nil
 }
 
-//FindByStatus : To find the user by status
-func (u *userServices) FindByStatus(status string) (users.Users, *errors.RestError) {
-	foundUsers, err := userDB.FindByStatus(status)
-	if err != nil {
-		return nil, err
-	}
-	return foundUsers, nil
-
-}
-
-func (u *userServices) LoginUser(request users.LoginRequest) (*users.User, *errors.RestError) {
+func (u *userServices) VerifyUser(request users.LoginRequest) (*users.User, *errors.RestError) {
 	user := &users.User{}
 	user.Email = request.Email
 	user.Password = request.Password
@@ -102,26 +87,4 @@ func (u *userServices) LoginUser(request users.LoginRequest) (*users.User, *erro
 		return nil, err
 	}
 	return user, nil
-}
-
-func (u *userServices) GetAddress(userID string) (*users.Address, *errors.RestError) {
-	find, err := addressDB.GetUserAddress(userID)
-	if err != nil {
-		return nil, errors.NewInternalServerError("Error While fetching the address")
-	}
-	return find, nil
-}
-
-func (u *userServices) AddAddress(userID string, address *users.UserAddress) *errors.RestError {
-	address.ValidateAddress()
-	err := addressDB.AddAddress(userID, address)
-	if err != nil {
-		return errors.NewInternalServerError("Error while adding the addreses")
-	}
-	return nil
-
-}
-
-func (u *userServices) RemoveAddress(userID string) {
-
 }

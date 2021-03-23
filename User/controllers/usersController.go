@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	oauth "github.com/ankitanwar/e-Commerce/Middleware/oAuth"
-	"github.com/ankitanwar/e-Commerce/User/domain/users"
-	"github.com/ankitanwar/e-Commerce/User/services"
+	oauth "github.com/ankitanwar/Shop-PopCorn/Middleware/oAuth"
+	"github.com/ankitanwar/Shop-PopCorn/User/domain/users"
+	"github.com/ankitanwar/Shop-PopCorn/User/services"
 	"github.com/gin-gonic/gin"
 )
 
 func getUserid(request *http.Request) (string, *errors.RestError) {
-	userID := request.Header.Get("X-Caller-Id")
+	userID := request.Header.Get("X-Caller-ID")
 	if userID == "" {
 		return "", errors.NewBadRequest("Invalid User ID")
 	}
@@ -28,12 +28,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	result, saverr := services.UserServices.CreateUser(newUser)
+	_, saverr := services.UserServices.CreateUser(newUser)
 	if saverr != nil {
 		c.JSON(saverr.Status, saverr)
 		return
 	}
-	c.JSON(http.StatusCreated, result.MarshallUser(oauth.IsPublic(c.Request)))
+	c.JSON(http.StatusAccepted, "User Has Been Created Successfully")
 }
 
 //GetUser : To get the user from the database
@@ -52,7 +52,9 @@ func GetUser(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, user.MarshallUser(oauth.IsPublic(c.Request)))
+	response := &users.ReturnUserDetails{}
+	response.ShowDetails(user)
+	c.JSON(http.StatusOK, response)
 
 }
 
@@ -80,7 +82,9 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, updatedUser.MarshallUser(oauth.IsPublic(c.Request)))
+	response := &users.ReturnUserDetails{}
+	response.ShowDetails(updatedUser)
+	c.JSON(http.StatusOK, response)
 }
 
 //DeleteUser :To Delete the user with given id
@@ -97,31 +101,21 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]string{"Status": "User Deleted"})
 }
 
-//FindByStatus : To find all the users by given status
-func FindByStatus(c *gin.Context) {
-	status := c.Query("status")
-	users, err := services.UserServices.FindByStatus(status)
-	if err != nil {
-		c.JSON(err.Status, err)
-		return
-	}
-	c.JSON(http.StatusOK, users.MarshallUser(oauth.IsPublic(c.Request)))
-
-}
-
 //Login : to verify user email and password
-func Login(c *gin.Context) {
+func VerifyUser(c *gin.Context) {
 	verifyUser := users.LoginRequest{}
 	if err := c.ShouldBindJSON(&verifyUser); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	user, err := services.UserServices.LoginUser(verifyUser)
+	user, err := services.UserServices.VerifyUser(verifyUser)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, user.MarshallUser(oauth.IsPublic(c.Request)))
+	response := &users.ReturnUserDetails{}
+	response.ShowDetails(user)
+	c.JSON(http.StatusOK, response)
 
 }
 
@@ -138,7 +132,7 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 	fmt.Println("The value of userID is ", userID)
-	address, err := services.UserServices.GetAddress(userID)
+	address, err := services.AddresService.GetAddress(userID)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
@@ -165,10 +159,44 @@ func AddAddress(c *gin.Context) {
 		c.JSON(err.Status, err)
 		return
 	}
-	err = services.UserServices.AddAddress(userID, address)
+	err = services.AddresService.AddAddress(userID, address)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
 	c.JSON(http.StatusAccepted, "Address has been added successfully")
+}
+
+//GetAddressWithID : To get the particular address of the user
+func GetAddressWithID(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	addressID := c.Param("addressID")
+	userID, _ := getUserid(c.Request)
+	response, err := services.AddresService.GetAddressWithID(userID, addressID)
+	if err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	c.JSON(http.StatusAccepted, response)
+}
+
+//RemoveAddress: To Remove the address of the given User
+func RemoveAddress(c *gin.Context) {
+	err := oauth.AuthenticateRequest(c.Request)
+	if err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	userID, _ := getUserid(c.Request)
+	addressID := c.Param("addressID")
+	err = services.AddresService.RemoveAddress(userID, addressID)
+	if err != nil {
+		c.JSON(err.Status, err.Message)
+		return
+	}
+	c.JSON(http.StatusAccepted, "Address Has Been Removed Successfully")
 }

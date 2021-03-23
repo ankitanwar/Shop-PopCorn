@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ankitanwar/e-Commerce/User/app"
+	"github.com/ankitanwar/Shop-PopCorn/User/app"
 	"github.com/joho/godotenv"
 )
 

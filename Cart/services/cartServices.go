@@ -1,10 +1,13 @@
 package services
 
 import (
+	"time"
+
 	"github.com/ankitanwar/GoAPIUtils/errors"
-	cartdatabase "github.com/ankitanwar/e-Commerce/Cart/database"
-	domain "github.com/ankitanwar/e-Commerce/Cart/domain"
-	product "github.com/ankitanwar/e-Commerce/Middleware/Products"
+	cartdatabase "github.com/ankitanwar/Shop-PopCorn/Cart/database"
+	domain "github.com/ankitanwar/Shop-PopCorn/Cart/domain"
+	domin "github.com/ankitanwar/Shop-PopCorn/Cart/domain"
+	product "github.com/ankitanwar/Shop-PopCorn/Middleware/Products"
 )
 
 //AddToCart : To add the given product details into the cart of the given user
@@ -42,6 +45,30 @@ func ViewCart(userID string) (*[]domain.Item, *errors.RestError) {
 }
 
 //Checkout : To checkout all the given items in the cart
-func Checkout(userID string) {
-	
+func Checkout(userID string) (*domain.CheckoutResponse, *errors.RestError) {
+	cart, err := cartdatabase.Checkout(userID)
+	if err != nil {
+		return nil, errors.NewInternalServerError("Unable To Fetch Cart Items")
+	}
+	response := &domain.CheckoutResponse{}
+	deliveryTime := time.Now()
+	deliveryTime.Format("01-02-2006")
+	deliveryTime = deliveryTime.AddDate(0, 0, 10)
+	i := 0
+	for i < len(cart.Items) {
+		currentItem := cart.Items[0]
+		itemID := currentItem.ItemID
+		Buyerr := product.ItemSerivce.BuyItem(itemID)
+		if Buyerr == nil {
+			details := &domin.ByResponse{
+				Price:       int64(currentItem.Price),
+				DeliverDate: deliveryTime.String(),
+				Title:       currentItem.Title,
+			}
+			response.Products = append(response.Products, *details)
+			response.TotalCost += int64(currentItem.Price)
+		}
+	}
+	return response, nil
+
 }

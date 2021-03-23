@@ -1,6 +1,6 @@
 package application
 
-import "github.com/ankitanwar/e-Commerce/Products/client/controllers"
+import "github.com/ankitanwar/Shop-PopCorn/Products/client/controllers"
 
 func urlMapping() {
 	router.GET("/ping", controllers.PingController.Ping)
@@ -11,4 +11,5 @@ func urlMapping() {
 	router.PATCH("/items/:id", controllers.ItemController.Update)
 	router.POST("/seller/items/:id", controllers.ItemController.SellerView)
 	router.GET("/item/search/:itemName", controllers.ItemController.SearchByName)
+	router.POST("/checkout/:itemsID", controllers.ItemController.CheckOut)
 }
