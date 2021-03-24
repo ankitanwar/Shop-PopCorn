@@ -76,8 +76,11 @@ message BuyItemRequest{
 message BuyItemResponse{
     string ExceptedDateOfDilvery=1;
     string Title=2;
-    string Address=3;
-    int64 Price=4;
+    string houseNO=3;
+    string street=4;
+    string state=5;
+    string country=6;
+    int64 Price=7;
 }
 message SellerViewRequest{
     string userID=1;

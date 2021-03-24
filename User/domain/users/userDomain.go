@@ -28,11 +28,11 @@ type Address struct {
 //UserAddress : Address field for the user
 type UserAddress struct {
 	ID          string
-	HouseNumber string `json:"houseNo"`
-	Street      string `json:"street"`
-	State       string `json:"state"`
-	Country     string `json:"country"`
-	Phone       string `json:"phone"`
+	HouseNumber string `json:"houseNo" bson:"housenumber"`
+	Street      string `json:"street" bson:"street"`
+	State       string `json:"state" bson:"state"`
+	Country     string `json:"country" bson:"country"`
+	Phone       string `json:"phone" bson:"phone"`
 }
 
 //Users : It will return the slices of users

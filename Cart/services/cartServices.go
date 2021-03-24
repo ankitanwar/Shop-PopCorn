@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/ankitanwar/GoAPIUtils/errors"
@@ -45,7 +47,7 @@ func ViewCart(userID string) (*[]domain.Item, *errors.RestError) {
 }
 
 //Checkout : To checkout all the given items in the cart
-func Checkout(userID string) (*domain.CheckoutResponse, *errors.RestError) {
+func Checkout(req *http.Request, userID string) (*domain.CheckoutResponse, *errors.RestError) {
 	cart, err := cartdatabase.Checkout(userID)
 	if err != nil {
 		return nil, errors.NewInternalServerError("Unable To Fetch Cart Items")
@@ -58,7 +60,7 @@ func Checkout(userID string) (*domain.CheckoutResponse, *errors.RestError) {
 	for i < len(cart.Items) {
 		currentItem := cart.Items[0]
 		itemID := currentItem.ItemID
-		Buyerr := product.ItemSerivce.BuyItem(itemID)
+		Buyerr := product.ItemSerivce.BuyItem(req, itemID)
 		if Buyerr == nil {
 			details := &domin.ByResponse{
 				Price:       int64(currentItem.Price),
@@ -67,6 +69,7 @@ func Checkout(userID string) (*domain.CheckoutResponse, *errors.RestError) {
 			}
 			response.Products = append(response.Products, *details)
 			response.TotalCost += int64(currentItem.Price)
+			fmt.Println("The value of response is", response)
 		}
 	}
 	return response, nil

@@ -6,7 +6,6 @@ import (
 
 	"github.com/ankitanwar/Shop-PopCorn/User/domain/users"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -49,10 +48,4 @@ func RemoveAddress(userID string, addressID string) error {
 		return err
 	}
 	return nil
-}
-
-func UserSpecificAddress(userID, addressID string) *mongo.SingleResult {
-	filter := bson.M{"_id": userID, "addresses": bson.M{"id": addressID}}
-	result := collection.FindOne(context.Background(), filter)
-	return result
 }

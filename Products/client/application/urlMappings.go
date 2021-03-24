@@ -7,7 +7,7 @@ func urlMapping() {
 	router.POST("/items/sellitem", controllers.ItemController.Create)
 	router.GET("/items/:id", controllers.ItemController.Get)
 	router.DELETE("/items/:id", controllers.ItemController.Delete)
-	router.POST("/items/buy/:itemsID", controllers.ItemController.Buy)
+	router.POST("/items/buy/:itemsID/:addressID", controllers.ItemController.Buy)
 	router.PATCH("/items/:id", controllers.ItemController.Update)
 	router.POST("/seller/items/:id", controllers.ItemController.SellerView)
 	router.GET("/item/search/:itemName", controllers.ItemController.SearchByName)

@@ -28,7 +28,7 @@ var (
 )
 
 type userInterace interface {
-	GetAddress(*http.Request) (*specificAddress, *errors.RestError)
+	GetAddress(*http.Request, string) (*SpecificAddress, *errors.RestError)
 }
 type user struct{}
 
@@ -50,7 +50,7 @@ func GetAccessID(request *http.Request) string {
 	return callerID
 }
 
-type specificAddress struct {
+type SpecificAddress struct {
 	ID          string
 	HouseNumber string `json:"houseNo"`
 	Street      string `json:"street"`
@@ -59,12 +59,12 @@ type specificAddress struct {
 	Phone       string `json:"phone"`
 }
 
-func (u *user) GetAddress(request *http.Request) (*specificAddress, *errors.RestError) {
+func (u *user) GetAddress(request *http.Request, addressID string) (*SpecificAddress, *errors.RestError) {
 	userID := GetCallerID(request)
 	accessTokenID := GetAccessID(request)
 	headers.Set(headerXCallerID, userID)
 	headers.Set(headerXAccessTokenID, accessTokenID)
-	response := oauthRestClient.Get(fmt.Sprintf("/user/address/%s", userID))
+	response := oauthRestClient.Get(fmt.Sprintf("/user/specificaddress/%s", addressID))
 	if response == nil || response.Response == nil {
 		return nil, errors.NewNotFound("Not found")
 	}
@@ -74,7 +74,7 @@ func (u *user) GetAddress(request *http.Request) (*specificAddress, *errors.Rest
 		return nil, err
 	}
 
-	address := &specificAddress{}
+	address := &SpecificAddress{}
 	if err := json.Unmarshal(response.Bytes(), &address); err != nil {
 		return nil, errors.NewInternalServerError("error when trying to unmarshal access token response")
 	}

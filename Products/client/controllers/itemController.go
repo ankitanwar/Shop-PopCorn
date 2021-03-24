@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	oauth "github.com/ankitanwar/Shop-PopCorn/Middleware/oAuth"
+	"github.com/ankitanwar/Shop-PopCorn/Middleware/user"
 	connect "github.com/ankitanwar/Shop-PopCorn/Products/client/connectToServer"
 	itemspb "github.com/ankitanwar/Shop-PopCorn/Products/proto"
 	"github.com/gin-gonic/gin"
@@ -62,11 +63,12 @@ func (i *itemControllerStruct) Create(c *gin.Context) {
 func (i *itemControllerStruct) Buy(c *gin.Context) {
 	itemID := c.Param("itemsID")
 	userID := getUserID(c.Request)
-	// address, err := user.GetUserAddress.GetAddress(c.Request)
-	// if err != nil {
-	// 	c.JSON(err.Status, err)
-	// 	return
-	// }
+	addressID := c.Param("addressID")
+	address, addressErr := user.GetUserAddress.GetAddress(c.Request, addressID)
+	if addressErr != nil {
+		c.JSON(addressErr.Status, addressErr.Message)
+		return
+	}
 	buyRequest := &itemspb.BuyItemRequest{ItemID: itemID, UserID: userID}
 	response, err := connect.Client.Buy(context.Background(), buyRequest)
 	if err != nil {
@@ -77,7 +79,10 @@ func (i *itemControllerStruct) Buy(c *gin.Context) {
 		}
 		return
 	}
-
+	response.HouseNO = address.HouseNumber
+	response.Country = address.Country
+	response.Street = address.Street
+	response.State = address.State
 	c.JSON(http.StatusOK, response)
 }
 
