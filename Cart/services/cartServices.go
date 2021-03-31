@@ -8,7 +8,6 @@ import (
 	"github.com/ankitanwar/GoAPIUtils/errors"
 	cartdatabase "github.com/ankitanwar/Shop-PopCorn/Cart/database"
 	domain "github.com/ankitanwar/Shop-PopCorn/Cart/domain"
-	domin "github.com/ankitanwar/Shop-PopCorn/Cart/domain"
 	product "github.com/ankitanwar/Shop-PopCorn/Middleware/Products"
 )
 
@@ -62,7 +61,7 @@ func Checkout(req *http.Request, userID string) (*domain.CheckoutResponse, *erro
 		itemID := currentItem.ItemID
 		Buyerr := product.ItemSerivce.BuyItem(req, itemID)
 		if Buyerr == nil {
-			details := &domin.ByResponse{
+			details := &domain.ByResponse{
 				Price:       int64(currentItem.Price),
 				DeliverDate: deliveryTime.String(),
 				Title:       currentItem.Title,
@@ -70,7 +69,10 @@ func Checkout(req *http.Request, userID string) (*domain.CheckoutResponse, *erro
 			response.Products = append(response.Products, *details)
 			response.TotalCost += int64(currentItem.Price)
 			fmt.Println("The value of response is", response)
+		} else {
+			return nil, Buyerr
 		}
+		i++
 	}
 	return response, nil
 

@@ -19,6 +19,7 @@ var (
 	ItemSerivce itemServiceInterface = &itemServicesStruct{}
 	headers                          = make(http.Header)
 	restClient                       = rest.RequestBuilder{
+		Headers: headers,
 		BaseURL: "http://localhost:8086",
 		Timeout: 100 * time.Millisecond,
 	}
@@ -91,7 +92,7 @@ func (item *itemServicesStruct) BuyItem(req *http.Request, itemID string) *error
 		return err
 	}
 	res := restClient.Post(fmt.Sprintf("/checkout/%s", itemID), nil)
-	if res.StatusCode < 300 {
+	if res.StatusCode < 299 {
 		return nil
 	}
 	return errors.NewBadRequest("Unable to purchase items")

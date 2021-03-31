@@ -74,12 +74,15 @@ func ValidateAccessToken(userID string, token string) (*domain.AccessToken, *err
 		if err != nil {
 			return nil, errors.NewInternalServerError("Error WhileFethcing The Token")
 		}
-		if response.Token == "" {
-			return nil, errors.NewBadRequest("Invalid Token ID")
+		if response.UserID != userID {
+			return nil, errors.NewBadRequest("Invalid UserID ")
+		}
+		if response.Token != token {
+			return nil, errors.NewBadRequest("Token Doesn't Match")
 		}
 		return response, nil
 	}
-	return nil, errors.NewBadRequest("Invalid Token ID")
+	return nil, errors.NewBadRequest("Please Enter The Valid Access Token")
 }
 
 //RemoveAccessToken : To Remove The Access Token Of the Given User
