@@ -1,7 +1,7 @@
 ## Product Service
 <br> </br>
 
-ALERT : Since the frontend is not there I have integrated grpc with the REST API To Get The Input which is not the correct way
+ALERT : Since the frontend is not there I have integrated grpc with the REST API To Take The Input which is not the correct way of doing so
 
 <br> </br>
 
