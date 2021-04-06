@@ -1,42 +1,55 @@
-### :handbag: A simple RESTful Microservices TO Buy&Sell Products
+### :package: Shop & PopCorn A simple RESTful Microservices TO Buy&Sell Products Online
 
 
 ## Features
 
-<b>Products Features</b>
+<b>Product Service</b>
 
 | Feature  | Description  |
 |----------|:-------------|
-| Add a Product | Ability To Add a Product on the System |
-| List Products | Ability To List Products |
-| Edit a Product | Ability To Edit a Product |
-| Delete a Product | Ability To Delete a Product |
+| Add a Product | To Add a Product on the System For Sale |
+| List Products | To List Products |
+| Edit a Product | Allowing Seller To Edit The Deatils Of The Already Selling Porduct |
+| Delete a Product | Allowing Seller To Delete Product |
 | SellerView | Ability To View The Quantity Sold and Quantity Left Of The Product For The Seller |
 
 
 <br> </br>
-<b>Purchase Features</b>
+
+<b>User Service</b>
 
 | Feature  | Description  |
 |----------|:-------------|
-| See Cart | Ability To See The Cart and The Items Inside It |
-| Add Item | Ability To Add New Item Into The Cart |
-| Remove a Item | Ability To Remove Item from The Cart |
-| Checkout | Ability To Buy All The Items Inside Cart |
+| CreateAccount | To Allow User To Create A New Account |
+| DeleteAccount | To Allow User To Delete A Account  |
+| GetDetails | To Fetch The User  Details |
+| Update Details | To Update The Details |
+| Add Address | To Add An Address |
+| Get Address | To Get All The Address Of The User |
 
 <br></br>
-<b>User Features</b>
+
+<b>Cart Service Service</b>
 
 | Feature  | Description  |
 |----------|:-------------|
-| CreateAccount | Ability To Create A New Account |
-| DeleteAccount | Ability To Delete Account From The System |
-| GetDetails | Ability To View The Details Saved In The system |
-| Update Details | Ability To Update The Saved Details In The System |
-| Add Address | Ability To Add Address |
-| Get Address | Ability To See All The  Addresses |
+| See Cart | To See The Cart and The Items Inside It |
+| Add Item | To Add New Item Into The Cart |
+| Remove a Item | To Remove Item from The Cart |
+| Checkout | To Buy All The Items Inside Cart |
 
 <br></br>
 
-# Shop&PopCorn
+
+<b>Auth Services</b>
+
+| Feature  | Description  |
+|----------|:-------------|
+| login | To Get The AccessToken And Access Private Services |
+| logout | To Delete the Access Token |
+| verify | To Verify Whether The User Has Valid Access Token Or Not  |
+
+
+<br></br>
+
 
